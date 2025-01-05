@@ -2,6 +2,29 @@ import mongoose from "mongoose";
 import multer from 'multer';
 import Product from "../models/product.model.js";
 
+// Configure Multer for file storage
+const storage = multer.diskStorage({
+	destination: (req, file, cb) => {
+	  cb(null, 'uploads/images'); // Specify the directory for uploaded images
+	},
+	filename: (req, file, cb) => {
+	  cb(null, `${Date.now()}-${file.originalname}`);
+	},
+  });
+  
+  const upload = multer({
+	storage,
+	limits: { fileSize: 5 * 1024 * 1024 }, // Limit file size to 5MB
+	fileFilter: (req, file, cb) => {
+	  if (file.mimetype.startsWith('image/')) {
+		cb(null, true);
+	  } else {
+		cb(new Error('Only image files are allowed'));
+	  }
+	},
+  });
+  
+  export const uploadImages = upload.array('images', 5); // Limit to 5 images per product
 
 export const getProducts = async (req, res) => {
 	try {
@@ -14,22 +37,29 @@ export const getProducts = async (req, res) => {
 };
 
 export const createProduct = async (req, res) => {
-	const product = req.body; // user will send this data
+  try {
+    const { name, price, description } = req.body;
+    const imagePaths = req.files.map(file => file.path); // Get paths of uploaded images
 
-	if (!product.name || !product.price || !product.image) {
-		return res.status(400).json({ success: false, message: "Please provide all fields" });
-	}
+    if (!name || !price || !imagePaths.length) {
+      return res.status(400).json({ success: false, message: "Please provide all fields including images" });
+    }
 
-	const newProduct = new Product(product);
+    const newProduct = new Product({
+      name,
+      price,
+      description,
+      images: imagePaths, // Save image paths in the product document
+    });
 
-	try {
-		await newProduct.save();
-		res.status(201).json({ success: true, data: newProduct });
-	} catch (error) {
-		console.error("Error in Create product:", error.message);
-		res.status(500).json({ success: false, message: "Server Error" });
-	}
+    await newProduct.save();
+    res.status(201).json({ success: true, data: newProduct });
+  } catch (error) {
+    console.error("Error in Create product:", error.message);
+    res.status(500).json({ success: false, message: "Server Error" });
+  }
 };
+
 
 export const updateProduct = async (req, res) => {
 	const { id } = req.params;
