@@ -18,6 +18,7 @@ const __dirname = path.resolve();
 
 app.use(express.json()); // allows us to accept JSON data in the req.body
 app.use(cookieParser());
+app.use('/uploads', express.static('uploads'));
 
 
 app.use("/api/products", productRoutes);

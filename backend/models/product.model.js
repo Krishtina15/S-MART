@@ -3,17 +3,21 @@ import mongoose from 'mongoose';
 const productSchema = new mongoose.Schema({
     name: {
         type: String,
-        required: true
-    },
-    price:{
-        type:Number,
-        required: true
-    },
-    image: {
+        required: true,
+      },
+      price: {
+        type: Number,
+        required: true,
+      },
+      description: {
         type: String,
-        required: true
-    },
-},{
+        required: true,
+      },
+      images: {
+        type: [String], // Array to store multiple image paths
+        required: true,
+      }
+    },{
     timestamps: true //CreatedAt, updatedAt
 });
 
