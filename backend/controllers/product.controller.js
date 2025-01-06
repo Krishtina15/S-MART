@@ -1,9 +1,9 @@
 import mongoose from "mongoose";
-import multer from 'multer';
+//import multer from 'multer';
 import Product from "../models/product.model.js";
 
 // Configure Multer for file storage
-const storage = multer.diskStorage({
+/*const storage = multer.diskStorage({
 	destination: (req, file, cb) => {
 	  cb(null, 'uploads/images'); // Specify the directory for uploaded images
 	},
@@ -24,7 +24,7 @@ const storage = multer.diskStorage({
 	},
   });
   
-  export const uploadImages = upload.array('images', 5); // Limit to 5 images per product
+  export const uploadImages = upload.array('images', 5); // Limit to 5 images per product*/
 
 export const getProducts = async (req, res) => {
 	try {
@@ -39,17 +39,20 @@ export const getProducts = async (req, res) => {
 export const createProduct = async (req, res) => {
   try {
     const { name, price, description } = req.body;
-    const imagePaths = req.files.map(file => file.path); // Get paths of uploaded images
+   // const imagePaths = req.files.map(file => file.path); // Get paths of uploaded images
 
-    if (!name || !price || !imagePaths.length) {
+   /* if (!name || !price || !imagePaths.length) {
       return res.status(400).json({ success: false, message: "Please provide all fields including images" });
-    }
+    }*/
+	if (!name || !price ) {
+		return res.status(400).json({ success: false, message: "Please provide all fields including images" });
+	  }
 
     const newProduct = new Product({
       name,
       price,
       description,
-      images: imagePaths, // Save image paths in the product document
+      //images: imagePaths, // Save image paths in the product document
     });
 
     await newProduct.save();
