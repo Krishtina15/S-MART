@@ -13,10 +13,15 @@ const productSchema = new mongoose.Schema({
         type: String,
         required: true,
       },
-      /*images: {
+      quantity:{
+        type: Number,
+        required: true,
+        min: 1
+      },
+      images: {
         type: [String], // Array to store multiple image paths
         required: true,
-      }*/
+      }
     },{
     timestamps: true //CreatedAt, updatedAt
 });
