@@ -19,7 +19,7 @@ const storage = multer.diskStorage({
 	  if (file.mimetype.startsWith('image/')) {
 		cb(null, true);
 	  } else {
-		cb(new Error('Only image files are allowed'));
+		cb(new Error('Only 5 image files are allowed'));
 	  }
 	},
   });
@@ -49,7 +49,7 @@ export const createProduct = async (req, res) => {
       name,
       price,
       description,
-	  quantity,
+	  details,
       images: imagePaths, // Save image paths in the product document
     });
 
