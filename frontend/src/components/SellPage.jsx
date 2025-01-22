@@ -51,7 +51,7 @@ export default function SellPage() {
     data.append("details", JSON.stringify(formData.details)); // Send details as JSON string
 
     try {
-      const response = await fetch("http://localhost:8000/api/products", {
+      const response = await fetch("/api/products", {
         method: "POST",
         body: data,
       });
