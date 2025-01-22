@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
 
 const productSchema = new mongoose.Schema({
-    name: {
+    productName: {
         type: String,
         required: true,
       },
@@ -13,11 +13,12 @@ const productSchema = new mongoose.Schema({
         type: String,
         required: true,
       },
-      quantity:{
-        type: Number,
-        required: true,
-        min: 1
-      },
+      details:[
+        {
+          key:{type:String},
+          value:{type:String},
+        },
+      ],
       images: {
         type: [String], // Array to store multiple image paths
         required: true,
