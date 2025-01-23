@@ -1,10 +1,10 @@
-import React, { useState } from "react";
+import React, { useState } from 'react';
 
 export default function SellPage() {
   const [formData, setFormData] = useState({
-    productName: "",
-    price: "",
-    description: "",
+    productName: '',
+    price: '',
+    description: '',
     details: [], // Initialize details as an empty array
     images: null,
   });
@@ -59,12 +59,6 @@ export default function SellPage() {
     data.append("price", formData.price);
     data.append("description", formData.description);
     data.append("details", JSON.stringify(formData.details));
-    
-    /*formData.details.forEach((detail, index) => {
-      data.append(`details[${index}][key]`, detail.key);
-      data.append(`details[${index}][value]`, detail.value);
-    });*/
-  
 
     if (formData.images && formData.images.length > 0) {
       formData.images.forEach((file) => {
@@ -87,10 +81,11 @@ export default function SellPage() {
           productName: "",
           price: "",
           description: "",
-          details: [], // Reset details to an empty array
+          details: [],
           images: null,
         });
-      } else {const errorData = await res.json();
+      } else {
+        const errorData = await res.json();
         alert(`Failed to add product. ${errorData.message || "Unknown error."}`);
       }
     } catch (error) {
@@ -100,67 +95,90 @@ export default function SellPage() {
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <div>
-        <label>Product Name:</label>
+    
+    <form onSubmit={handleSubmit} className="max-w-3xl my-24 mx-auto p-6 bg-brown-50 shadow-md rounded-md space-y-8">
+      <div className="space-y-2">
+        <label className="block text-brown-800 font-semibold">Product Name:</label>
         <input
           type="text"
           name="productName"
           value={formData.productName}
           onChange={handleChange}
           required
+          className="w-full p-2 border border-brown-300 rounded-md focus:outline-none focus:ring-2 focus:ring-brown-500"
         />
       </div>
-      <div>
-        <label>Price:</label>
+
+      <div className="space-y-2">
+        <label className="block text-brown-800 font-semibold">Price:</label>
         <input
           type="text"
           name="price"
           value={formData.price}
           onChange={handleChange}
           required
+          className="w-full p-2 border border-brown-300 rounded-md focus:outline-none focus:ring-2 focus:ring-brown-500"
         />
       </div>
-      <div>
-        <label>Image:</label>
-        <input type="file" onChange={handleImageChange} required multiple />
+
+      <div className="space-y-2">
+        <label className="block text-brown-800 font-semibold">Images (Max 5):</label>
+        <input
+          type="file"
+          onChange={handleImageChange}
+          required
+          multiple
+          accept="image/*"
+          className="block w-full text-sm text-brown-700 border border-brown-300 rounded-md file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-brown-200 file:text-brown-800 hover:file:bg-brown-300"
+        />
       </div>
-      <div>
-        <label>Description:</label>
+
+      <div className="space-y-2">
+        <label className="block text-brown-800 font-semibold">Description:</label>
         <textarea
           name="description"
           value={formData.description}
           onChange={handleChange}
+          className="w-full p-2 border border-brown-300 rounded-md focus:outline-none focus:ring-2 focus:ring-brown-500"
         ></textarea>
       </div>
-      <div>
-        <h3>Details:</h3>
-        {/* Use optional chaining to avoid undefined errors */}
-        {formData.details?.map((detail, index) => (
-          <div key={index}>
+
+      <div className="space-y-2">
+        <h3 className="text-brown-800 font-semibold">Details:</h3>
+        {formData.details.map((detail, index) => (
+          <div key={index} className="flex space-x-2 mb-2">
             <input
               type="text"
               placeholder="Key"
               value={detail.key}
-              onChange={(e) =>
-                handleDetailChange(index, "key", e.target.value)
-              }
+              onChange={(e) => handleDetailChange(index, "key", e.target.value)}
+              className="flex-1 p-2 border border-brown-300 rounded-md focus:outline-none focus:ring-2 focus:ring-brown-500"
             />
             <input
               type="text"
               placeholder="Value"
               value={detail.value}
-              onChange={(e) =>
-                handleDetailChange(index, "value", e.target.value)
-              }
+              onChange={(e) => handleDetailChange(index, "value", e.target.value)}
+              className="flex-1 p-2 border border-brown-300 rounded-md focus:outline-none focus:ring-2 focus:ring-brown-500"
             />
           </div>
         ))}
-        <button type="button" onClick={handleAddDetail}>
+        <button
+          type="button"
+          onClick={handleAddDetail}
+          className="bg-brown-500 text-white rounded-md p-2 hover:bg-brown-600"
+        >
           Add Detail
         </button>
       </div>
-      <button type="submit">Submit</button>
+
+      <button
+        type="submit"
+        className="w-full p-2 text-white rounded-md bg-brown-600 hover:bg-brown-700"
+      >
+        Submit
+      </button>
     </form>
   );
 }
+

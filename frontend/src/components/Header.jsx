@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link, NavLink } from "react-router-dom";
 
-const Header=()=> {
+const Header = () => {
   const [isOpen, setIsOpen] = useState(false);
 
   // Toggle the menu
@@ -19,14 +19,14 @@ const Header=()=> {
   }, []); // Dependency array ensures this runs once on mount
 
   return (
-    <nav className="bg-amber-500 flex items-center justify-between px-4 py-2">
+    <nav className="bg-brown-600 flex items-center justify-between px-4 py-2 shadow-md">
       {/* Logo */}
       <img src="" alt="Logo" width="30" className="rounded-full" />
 
       {/* Navigation */}
-      <ul className="flex space-x-4 items-center">
+      <ul className="flex items-center space-x-4">
         {/* Search Input */}
-        <li>
+        <li className="hidden md:block">
           <input
             type="text"
             placeholder="Search"
@@ -36,13 +36,13 @@ const Header=()=> {
 
         {/* Desktop Buttons */}
         <li className="hidden md:block">
-          <button>Sign in</button>
+          <Link to="/login" className="text-white hover:underline">Sign in</Link>
         </li>
         <li className="hidden md:block">
-          <button>Sign up</button>
+          <Link to="/signup" className="text-white hover:underline">Sign up</Link>
         </li>
         <li className="hidden md:block">
-          <button>Sell</button>
+          <NavLink to="/sell-page" className="text-white hover:underline">Sell</NavLink>
         </li>
 
         {/* Mobile Dropdown Button */}
@@ -63,22 +63,22 @@ const Header=()=> {
 
           {/* Dropdown Menu */}
           {isOpen && (
-            <div className="absolute right-0 mt-2 w-48 bg-white border border-amber-800 rounded-lg shadow-lg">
+            <div className="absolute right-0 mt-2 w-48 bg-white border border-brown-800 rounded-lg shadow-lg z-10">
               <Link
-                to=""
-                className="block px-4 py-2 text-gray-800 hover:bg-amber-100"
+                to="/signin"
+                className="block px-4 py-2 text-gray-800 hover:bg-brown-100"
               >
                 Sign in
               </Link>
               <Link
-                to=""
-                className="block px-4 py-2 text-gray-800 hover:bg-amber-100"
+                to="/signup"
+                className="block px-4 py-2 text-gray-800 hover:bg-brown-100"
               >
                 Sign up
               </Link>
               <NavLink
                 to="/sell-page"
-                className="block px-4 py-2 text-gray-800 hover:bg-amber-100"
+                className="block px-4 py-2 text-gray-800 hover:bg-brown-100"
               >
                 Sell
               </NavLink>
@@ -88,5 +88,6 @@ const Header=()=> {
       </ul>
     </nav>
   );
-}
+};
+
 export default Header;
