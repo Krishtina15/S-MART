@@ -5,7 +5,7 @@ export default function SellPage() {
     productName: "",
     price: "",
     description: "",
-    details: [],
+    details: [], // Initialize details as an empty array
     images: null,
   });
 
@@ -17,12 +17,25 @@ export default function SellPage() {
 
   // Handle image upload
   const handleImageChange = (e) => {
-    setFormData({ ...formData, images: e.target.files[0] });
+    const filesArray = Array.from(e.target.files);
+
+    const isValidFiles = filesArray.every(
+      (file) => file.type.startsWith("image/") && file.size <= 5 * 1024 * 1024
+    );
+
+    if (isValidFiles) {
+      setFormData({ ...formData, images: filesArray });
+    } else {
+      alert("Please upload valid image files (up to 5MB each).");
+    }
   };
 
   // Handle adding new details
   const handleAddDetail = () => {
-    setFormData({ ...formData, details: [...formData.details, { key: "", value: "" }] });
+    setFormData({
+      ...formData,
+      details: [...formData.details, { key: "", value: "" }],
+    });
   };
 
   // Handle changes to individual detail fields
@@ -36,37 +49,49 @@ export default function SellPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Check if required fields are filled
     if (!formData.productName || !formData.price || !formData.images) {
       alert("Product Name, Price, and Image are mandatory fields!");
       return;
     }
 
-    // Prepare form data for submission
     const data = new FormData();
     data.append("productName", formData.productName);
     data.append("price", formData.price);
-    data.append("images", formData.images);
     data.append("description", formData.description);
-    data.append("details", JSON.stringify(formData.details)); // Send details as JSON string
+    data.append("details", JSON.stringify(formData.details));
+    
+    /*formData.details.forEach((detail, index) => {
+      data.append(`details[${index}][key]`, detail.key);
+      data.append(`details[${index}][value]`, detail.value);
+    });*/
+  
+
+    if (formData.images && formData.images.length > 0) {
+      formData.images.forEach((file) => {
+        data.append("images", file);
+      });
+    } else {
+      alert("Please select at least one image.");
+      return; // Prevent form submission if no image is selected
+    }
 
     try {
-      const response = await fetch("http://localhost:8000/api/products", {
+      const res = await fetch("/api/products", {
         method: "POST",
         body: data,
       });
 
-      if (response.ok) {
+      if (res.ok) {
         alert("Product added successfully!");
         setFormData({
           productName: "",
           price: "",
           description: "",
-          details: [], 
+          details: [], // Reset details to an empty array
           images: null,
         });
-      } else {
-        alert("Failed to add product.");
+      } else {const errorData = await res.json();
+        alert(`Failed to add product. ${errorData.message || "Unknown error."}`);
       }
     } catch (error) {
       console.error("Error:", error);
@@ -98,7 +123,7 @@ export default function SellPage() {
       </div>
       <div>
         <label>Image:</label>
-        <input type="file" onChange={handleImageChange} required />
+        <input type="file" onChange={handleImageChange} required multiple />
       </div>
       <div>
         <label>Description:</label>
@@ -110,7 +135,8 @@ export default function SellPage() {
       </div>
       <div>
         <h3>Details:</h3>
-        {formData.details.map((detail, index) => (
+        {/* Use optional chaining to avoid undefined errors */}
+        {formData.details?.map((detail, index) => (
           <div key={index}>
             <input
               type="text"
@@ -138,5 +164,3 @@ export default function SellPage() {
     </form>
   );
 }
-
-    

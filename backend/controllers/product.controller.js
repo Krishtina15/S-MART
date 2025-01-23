@@ -14,12 +14,13 @@ const storage = multer.diskStorage({
   
   const upload = multer({
 	storage,
-	limits: { fileSize: 5 * 1024 * 1024 }, // Limit file size to 5MB
+	limits: { fileSize: 5 * 1024 * 1024 },
 	fileFilter: (req, file, cb) => {
-	  if (file.mimetype.startsWith('image/')) {
+	  console.log("Uploading file:", file.originalname); // Debug log
+	  if (file.mimetype.startsWith("image/")) {
 		cb(null, true);
 	  } else {
-		cb(new Error('Only 5 image files are allowed'));
+		cb(new Error("Only image files are allowed"));
 	  }
 	},
   });
@@ -27,6 +28,7 @@ const storage = multer.diskStorage({
 export const uploadImages = upload.array('images', 5); // Limit to 5 images per product
 
 export const getProducts = async (req, res) => {
+	
 	try {
 		const products = await Product.find({});
 		res.status(200).json({ success: true, data: products });
@@ -37,30 +39,41 @@ export const getProducts = async (req, res) => {
 };
 
 export const createProduct = async (req, res) => {
-  try {
-    const { name, price, description, quantity } = req.body;
-    const imagePaths = req.files.map(file => file.path); // Get paths of uploaded images
-
-    if (!name || !price || !imagePaths.length) {
-      return res.status(400).json({ success: false, message: "Please provide all fields including images" });
-    }
+	console.log("Request body:", req.body);
+  
+	try {
+		console.log("Uploaded files:", req.files);
+		
+		const { productName, price, description, details } = req.body;
+		const images = req.files;
 	
-    const newProduct = new Product({
-      name,
-      price,
-      description,
-	  details,
-      images: imagePaths, // Save image paths in the product document
-    });
-
-    await newProduct.save();
-    res.status(201).json({ success: true, data: newProduct });
-  } catch (error) {
-    console.error("Error in Create product:", error.message);
-    res.status(500).json({ success: false, message: error.massage });
-  }
-};
-
+		if (!productName || !price || !images || images.length === 0) {
+		  return res.status(400).json({ success: false, message: "Please provide all fields including images" });
+		}
+	
+		// Parse details if it's a JSON string
+		let parsedDetails = [];
+		if (details) {
+		  parsedDetails = JSON.parse(details); // Parse the details
+		}
+	
+		const newProduct = new Product({
+		  productName,
+		  price,
+		  description,
+		  details: parsedDetails,  // Use parsed details
+		  images: images.map(file => file.path),  // Assuming image paths are saved
+		});
+	
+		await newProduct.save();
+		res.status(201).json({ success: true, data: newProduct });
+	  } catch (error) {
+		console.error("Error in Create product:", error.message);
+		res.status(500).json({ success: false, message: error.message });
+	  }
+	};
+  
+  
 
 export const updateProduct = async (req, res) => {
 	const { id } = req.params;
