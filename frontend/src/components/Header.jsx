@@ -19,7 +19,7 @@ const Header = () => {
   }, []); // Dependency array ensures this runs once on mount
 
   return (
-    <nav className="bg-amber-500 flex items-center justify-between px-4 py-2 shadow-md">
+    <nav className="bg-brown-600 flex items-center justify-between px-4 py-2 shadow-md">
       {/* Logo */}
       <img src="" alt="Logo" width="30" className="rounded-full" />
 
@@ -36,7 +36,7 @@ const Header = () => {
 
         {/* Desktop Buttons */}
         <li className="hidden md:block">
-          <Link to="/signin" className="text-white hover:underline">Sign in</Link>
+          <Link to="/login" className="text-white hover:underline">Sign in</Link>
         </li>
         <li className="hidden md:block">
           <Link to="/signup" className="text-white hover:underline">Sign up</Link>
@@ -63,22 +63,22 @@ const Header = () => {
 
           {/* Dropdown Menu */}
           {isOpen && (
-            <div className="absolute right-0 mt-2 w-48 bg-white border border-amber-800 rounded-lg shadow-lg z-10">
+            <div className="absolute right-0 mt-2 w-48 bg-white border border-brown-800 rounded-lg shadow-lg z-10">
               <Link
                 to="/signin"
-                className="block px-4 py-2 text-gray-800 hover:bg-amber-100"
+                className="block px-4 py-2 text-gray-800 hover:bg-brown-100"
               >
                 Sign in
               </Link>
               <Link
                 to="/signup"
-                className="block px-4 py-2 text-gray-800 hover:bg-amber-100"
+                className="block px-4 py-2 text-gray-800 hover:bg-brown-100"
               >
                 Sign up
               </Link>
               <NavLink
                 to="/sell-page"
-                className="block px-4 py-2 text-gray-800 hover:bg-amber-100"
+                className="block px-4 py-2 text-gray-800 hover:bg-brown-100"
               >
                 Sell
               </NavLink>

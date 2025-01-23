@@ -1,41 +1,40 @@
 import React from "react";
 
-const Footer=()=> {
+const Footer = () => {
+    return (
+        <footer className="bg-brown-600">
+            <div className="flex justify-center items-center">
+                <div className="flex justify-between">
+                    <div className="grid grid-cols-3 my-10 gap-10 max-w-screen-lg h-auto">
+                        <div className="col-span-1">
+                            <h3 className="text-white">About Us</h3>
+                            <p><a href="" className="text-brown-200 hover:underline">S-MART</a></p>
+                        </div>
 
-    return(
-        <footer class="bg-amber-500">
-        <div class="flex justify-center items-center">
-         <div class="flex justify-between"> 
-        <div class="grid grid-cols-3 my-10  gap-10 max-w-screen-lg h-auto">
-           <div class="col-span-1">
-            <h3>About Us</h3>
-            <p><a href="">S-MART</a></p>
-           </div>
+                        <div className="col-span-1 ml-0">
+                            <h1 className="text-white">Founder</h1>
+                            <ul className="text-white">
+                                <li>Jebisha Bariya</li>
+                                <li>Kristina Bhatta</li>
+                                <li>Melina Pomu</li>
+                                <li>Sylvia Thapa</li>
+                            </ul>
+                        </div>
 
-           <div class="col-span-1 ml-0">
-            <h1>Founder</h1>
-           <ul>
-            <li>Jebisha Bariya</li>
-            <li>Kristina Bhatta</li>
-            <li>Melina Pomu</li>
-            <li>Sylvia Thapa</li>
-           </ul>
-           </div>
+                        <div className="col-span-1 ml-0">
+                            <h1 className="text-white">Contact</h1>
+                            <ul className="text-white">
+                                <li><a href="mailto:Jebi@ku.edu.np" className="hover:underline">Jebi@ku.edu.np</a></li>
+                                <li><a href="mailto:Kris@ku.edu.np" className="hover:underline">Kris@ku.edu.np</a></li>
+                                <li><a href="mailto:Me@ku.edu.np" className="hover:underline">Me@ku.edu.np</a></li>
+                                <li><a href="mailto:Sylvia@ku.edu.np" className="hover:underline">Sylvia@ku.edu.np</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </footer>
+    );
+};
 
-           <div class="col-span-1 ml-0">
-            <h1>Contact </h1>
-            <ul>
-                <li>Jebi@ku.edu.np</li>
-                <li>Kris@ku.edu.np</li>
-                <li>Me@ku.edu.np</li>
-                <li>Sylvia@ku.edu.np</li>
-            </ul>
-           </div>
-        </div> 
-    </div>
-</div>  
- </footer>
-  
-    )
-}
 export default Footer;

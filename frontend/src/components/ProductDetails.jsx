@@ -10,7 +10,7 @@ const ProductDetails = () => {
         const fetchProduct = async () => {
             try {
                 const { data } = await axios.get(`/api/products/${id}`);
-                setProduct(data);
+                setProduct(data.data);
             } catch (error) {
                 console.error('Error fetching product:', error);
             }
@@ -38,19 +38,19 @@ const ProductDetails = () => {
                             <div className="border-solid border-2">
                                 <div className="border-solid rounded-lg border-2 pt-2 mx-5 mt-7 mb-16">
                                     <div className="flex justify-center mb-9">
-                                        <div className="max-w-max bg-amber-200 py-2 px-10 mt-7 rounded-lg">
+                                        <div className="max-w-max bg-brown-200 py-2 px-10 mt-7 rounded-lg">
                                             <h1>Price: ${product.price}</h1>
                                         </div>
                                     </div>
                                     <div className="flex justify-center mb-9">
-                                        <div className="max-w-max bg-amber-200 py-2 px-10 rounded-lg">
+                                        <div className="max-w-max bg-brown-200 py-2 px-10 rounded-lg">
                                             <button>Make Offer</button>
                                         </div>
                                     </div>
                                 </div>
                                 {/* Chat with Seller */}
                                 <div className="border-solid border-2 rounded-lg flex justify-center items-center mx-5 mb-5">
-                                    <div className="max-w-max bg-amber-200 py-2 px-12 rounded-lg">
+                                    <div className="max-w-max bg-brown-200 py-2 px-12 rounded-lg">
                                         <button>Chat with Seller</button>
                                     </div>
                                 </div>
