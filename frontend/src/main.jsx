@@ -5,14 +5,14 @@ import App from './App.jsx';
 import React from 'react';
 import { RouterProvider, createBrowserRouter } from 'react-router-dom';
 import Layout from './Layout.jsx';
-import Home from './components/Home.jsx';
+import ProductGrid from './components/ProductGrid.jsx';
 import ProductDetails from './components/ProductDetails.jsx';
 import SellPage from './components/SellPage.jsx';
 import Header from './components/Header.jsx';
 import Footer from './components/Footer.jsx';
 import Profile from './components/Profile.jsx';
 import About from './components/About.jsx';
-
+import Login from './components/Login.jsx';
 // Corrected router setup
 const router = createBrowserRouter([
   {
@@ -21,7 +21,7 @@ const router = createBrowserRouter([
     children: [
       {
         path: '',
-        element: <Home />,
+        element: <ProductGrid />,
       },
       {
         path: 'product-details', 
@@ -35,6 +35,10 @@ const router = createBrowserRouter([
         path: 'about',
         element: <About />,
       },
+      {
+        path: 'login',
+        element: <Login/>
+      }
     ],
   },
 ]);
