@@ -13,6 +13,7 @@ const ProductGrid = () => {
                 console.error('Error fetching products:', error);
              }
         };
+        
 
         fetchProducts();
      }, []);
@@ -26,10 +27,11 @@ const ProductGrid = () => {
                         {products.map((product, index) => (
                             <div key={index} className="shadow-lg transition-transform transform hover:scale-105 bg-white rounded-lg overflow-hidden">
                                 <img
-                                    src={`http://localhost:5000/${product.images[0]}`}  // Display the first image
-                                   alt={`Product ${index + 1}`}
+                                    src={product.images && product.images[0] ? `http://localhost:8000/${product.images[0]}` : '/path-to-placeholder-image.jpg'}
+                                    alt={`Product ${index + 1}`}
                                     className="w-full h-48 object-cover"
                                 />
+                               
                             <div className="p-4">
                                     <h2 className="text-lg font-semibold text-amber-900">{product.productName}</h2>
                                     <p className="text-xl font-bold text-amber-800">${product.price}</p>
