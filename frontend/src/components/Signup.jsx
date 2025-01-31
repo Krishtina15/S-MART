@@ -16,7 +16,7 @@ const Signup = () => {
     }
 
     try {
-      const response = await fetch('/api/users/signup', {
+      const response = await fetch('/api/auth/signup', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -24,14 +24,19 @@ const Signup = () => {
         body: JSON.stringify({
           username,
           email,
-          password
-        })
+          password, 
+          confirmPassword
+        }),
       });
 
       const data = await response.json();
+      console.log("API Response:", data); // Debugging
+			if (data.error) {
+				throw new Error(data.error);
+			}
 
       if (response.ok) {
-        alert(data.message);
+        alert("Success!");
       } else {
         alert(data.message || 'Signup failed');
       }
