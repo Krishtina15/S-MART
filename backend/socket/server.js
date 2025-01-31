@@ -9,6 +9,7 @@ import { connectDB } from "./config/db.js";
 
 import productRoutes from "./routes/product.route.js";
 import messageRoutes from "./routes/message.routes.js";
+import userRoutes from './routes/user.routes.js';
 
 dotenv.config();
 
@@ -32,6 +33,7 @@ if (process.env.NODE_ENV === "production") {
 		res.sendFile(path.resolve(__dirname, "frontend", "dist", "index.html"));
 	});
 }
+app.use("/api/users", userRoutes);
 
 app.listen(PORT, () => {
 	connectDB();
