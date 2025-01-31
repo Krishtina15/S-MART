@@ -1,6 +1,10 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAuthContext } from "../context/AuthContext";
 
 export default function SellPage() {
+  const { authUser } = useAuthContext();
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     productName: '',
     price: '',
@@ -8,6 +12,12 @@ export default function SellPage() {
     details: [], // Initialize details as an empty array
     images: null,
   });
+
+  
+  if (!authUser) {
+    navigate('/login');
+    return null; // Don't render the SellPage
+  }
 
   // Handle input changes for productName, price, and description
   const handleChange = (e) => {
@@ -59,6 +69,7 @@ export default function SellPage() {
     data.append("price", formData.price);
     data.append("description", formData.description);
     data.append("details", JSON.stringify(formData.details));
+    data.append("userId", authUser._id);
 
     if (formData.images && formData.images.length > 0) {
       formData.images.forEach((file) => {
@@ -84,6 +95,7 @@ export default function SellPage() {
           details: [],
           images: null,
         });
+        navigate('/');
       } else {
         const errorData = await res.json();
         alert(`Failed to add product. ${errorData.message || "Unknown error."}`);

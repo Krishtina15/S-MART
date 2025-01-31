@@ -1,20 +1,19 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import './index.css';
-import App from './App.jsx';
-import React from 'react';
 import { RouterProvider, createBrowserRouter } from 'react-router-dom';
-import Layout from './Layout.jsx';
-import ProductGrid from './components/ProductGrid.jsx';
-import ProductDetails from './components/ProductDetails.jsx';
-import SellPage from './components/SellPage.jsx';
-import Header from './components/Header.jsx';
-import Footer from './components/Footer.jsx';
-import Profile from './components/Profile.jsx';
-import About from './components/About.jsx';
-import Login from './components/Login.jsx';
-import Signup from './components/Signup.jsx';
-// Corrected router setup
+import { AuthContextProvider } from './context/AuthContext'; // Import AuthContextProvider
+import Layout from './Layout';
+import ProductGrid from './components/ProductGrid';
+import ProductDetails from './components/ProductDetails';
+import SellPage from './components/SellPage';
+import Profile from './components/Profile';
+import About from './components/About';
+import Login from './components/Login';
+import Signup from './components/Signup';
+import ProtectedRoute from './components/ProtectedRoute'; // Import ProtectedRoute
+
+// Router setup
 const router = createBrowserRouter([
   {
     path: '/',
@@ -25,12 +24,16 @@ const router = createBrowserRouter([
         element: <ProductGrid />,
       },
       {
-        path: 'product-details/:id', 
+        path: 'product-details/:id',
         element: <ProductDetails />,
       },
       {
-        path: 'sell-page', 
-        element: <SellPage />,
+        path: 'sell-page',
+        element: (
+          <ProtectedRoute>
+            <SellPage />
+          </ProtectedRoute>
+        ),
       },
       {
         path: 'about',
@@ -38,19 +41,29 @@ const router = createBrowserRouter([
       },
       {
         path: 'login',
-        element: <Login/>
+        element: <Login />,
       },
       {
         path: 'signup',
-        element: <Signup/>
-      }
+        element: <Signup />,
+      },
+      {
+        path: 'profile',
+        element: (
+          <ProtectedRoute>
+            <Profile />
+          </ProtectedRoute>
+        ),
+      },
     ],
   },
 ]);
 
-// Rendering the app
+// Render the app
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <RouterProvider router={router} />
+    <AuthContextProvider>
+      <RouterProvider router={router} />
+    </AuthContextProvider>
   </StrictMode>
 );
