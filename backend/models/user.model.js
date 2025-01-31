@@ -21,7 +21,8 @@ const userSchema = new mongoose.Schema({
         sparse:true 
     },
     products:{
-        type:Array
+        type: mongoose.Schema.Types.ObjectId,
+		ref: "Product",
     }
 });
 
