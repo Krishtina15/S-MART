@@ -15,6 +15,7 @@ const ProductGrid = () => {
                 console.error('Error fetching products:', error);
             }
         };
+        
 
         fetchProducts();
     }, []);
