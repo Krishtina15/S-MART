@@ -2,24 +2,42 @@ import axios from 'axios';
 import { useParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 
+
 const ProductDetails = () => {
     const { id } = useParams();
     const [product, setProduct] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
 
     useEffect(() => {
         const fetchProduct = async () => {
             try {
-                const { data } = await axios.get(`/api/products/${id}`);
-                setProduct(data.data);
+                const { data } = await axios.get(`http://localhost:3000/api/products/${id}`);
+                if (data && data.data) {
+                    setProduct(data.data);  // Set the product data
+                } else {
+                    setError('Product not found');  // Handle case when no product is found
+                }
             } catch (error) {
                 console.error('Error fetching product:', error);
+                setError('Unexpected error occurred');
+            } finally {
+                setLoading(false);  // Set loading to false once data is fetched
             }
         };
 
         fetchProduct();
     }, [id]);
 
-    return product ? (
+    if (loading) {
+        return <p>Loading...</p>;  // Show loading message while fetching data
+    }
+
+    if (error) {
+        return <p>{error}</p>;  // Show error message if there's an issue
+    }
+
+    return (
         <main>
             {/* Product Image */}
             <div className="flex justify-center items-center border-solid border-2 m-5">
@@ -27,7 +45,7 @@ const ProductDetails = () => {
                     <div className="flex justify-center items-center">
                         <img
                             className="border-solid border-2 shadow-xl w-4/6"
-                            src={product.images[0]}
+                            src={`http://localhost:8000/${product.images[0]}`}
                             alt={product.productName}
                         />
                     </div>
@@ -86,8 +104,6 @@ const ProductDetails = () => {
                 </div>
             </section>
         </main>
-    ) : (
-        <p>Loading...</p>
     );
 };
 

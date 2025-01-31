@@ -13,6 +13,7 @@ import Footer from './components/Footer.jsx';
 import Profile from './components/Profile.jsx';
 import About from './components/About.jsx';
 import Login from './components/Login.jsx';
+import Signup from './components/Signup.jsx';
 // Corrected router setup
 const router = createBrowserRouter([
   {
@@ -24,7 +25,7 @@ const router = createBrowserRouter([
         element: <ProductGrid />,
       },
       {
-        path: 'product-details', 
+        path: 'product-details/:id', 
         element: <ProductDetails />,
       },
       {
@@ -38,6 +39,10 @@ const router = createBrowserRouter([
       {
         path: 'login',
         element: <Login/>
+      },
+      {
+        path: 'signup',
+        element: <Signup/>
       }
     ],
   },

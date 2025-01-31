@@ -35,6 +35,9 @@ const Header = () => {
         </li>
 
         {/* Desktop Buttons */}
+        <li className="md:block">
+          <Link to="/" className="text-white hover:underline">Home</Link>
+        </li>
         <li className="hidden md:block">
           <Link to="/login" className="text-white hover:underline">Sign in</Link>
         </li>
