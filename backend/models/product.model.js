@@ -15,6 +15,7 @@ const detailSchema = new mongoose.Schema({
 }, { _id: false });
 
 const productSchema = new mongoose.Schema({
+
     productName: {
         type: String,
         required: [true, 'Product name is required'],
@@ -38,6 +39,11 @@ const productSchema = new mongoose.Schema({
     images: {
         type: [String],
         required: [true, 'At least one image is required']
+    },
+    userId:{
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "User",
+            required: true
     }
 }, { timestamps: true });
 
