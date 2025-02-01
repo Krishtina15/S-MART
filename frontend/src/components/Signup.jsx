@@ -1,11 +1,15 @@
 import React, { useState } from 'react';
 import { User, Lock, Mail } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { useAuthContext } from "../context/AuthContext"; // Adjust the path as needed
 
 const Signup = () => {
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const { setAuthUser } = useAuthContext(); // Destructure setAuthUser from the context
+  const navigate = useNavigate();
 
   const handleSignup = async (e) => {
     e.preventDefault();
@@ -25,18 +29,25 @@ const Signup = () => {
           username,
           email,
           password, 
-          confirmPassword
+          confirmPassword,
         }),
       });
 
       const data = await response.json();
       console.log("API Response:", data); // Debugging
-			if (data.error) {
-				throw new Error(data.error);
-			}
+
+      if (data.error) {
+        throw new Error(data.error);
+      }
+
+      localStorage.setItem("user", JSON.stringify(data));
+      setAuthUser(data); // Update the auth user in the context
 
       if (response.ok) {
-        alert("Success!");
+        localStorage.setItem("user", JSON.stringify(data));
+      setAuthUser(data); // Update the auth user in the context
+
+        navigate('/');
       } else {
         alert(data.message || 'Signup failed');
       }

@@ -1,6 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAuthContext } from "../context/AuthContext";
 
 export default function SellPage() {
+  const { authUser } = useAuthContext();
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     productName: '',
     price: '',
@@ -8,6 +12,20 @@ export default function SellPage() {
     details: [], // Initialize details as an empty array
     images: null,
   });
+
+  // If there is no user logged in, show a message and navigate to login
+  useEffect(() => {
+    if (!authUser) {
+      alert("Please log in to add a product.");
+      setTimeout(() => {
+        navigate('/login'); // Redirect to login page after a delay
+      }, 2000); // 2-second delay before redirecting
+    }
+  }, [authUser, navigate]);
+
+  if (!authUser) {
+    return null; // Don't render the SellPage until user is logged in
+  }
 
   // Handle input changes for productName, price, and description
   const handleChange = (e) => {
@@ -59,6 +77,7 @@ export default function SellPage() {
     data.append("price", formData.price);
     data.append("description", formData.description);
     data.append("details", JSON.stringify(formData.details));
+    data.append("userId", authUser._id);
 
     if (formData.images && formData.images.length > 0) {
       formData.images.forEach((file) => {
@@ -84,6 +103,7 @@ export default function SellPage() {
           details: [],
           images: null,
         });
+        navigate('/');
       } else {
         const errorData = await res.json();
         alert(`Failed to add product. ${errorData.message || "Unknown error."}`);
@@ -95,7 +115,6 @@ export default function SellPage() {
   };
 
   return (
-    
     <form onSubmit={handleSubmit} className="max-w-3xl my-24 mx-auto p-6 bg-brown-50 shadow-md rounded-md space-y-8">
       <div className="space-y-2">
         <label className="block text-brown-800 font-semibold">Product Name:</label>
@@ -181,4 +200,3 @@ export default function SellPage() {
     </form>
   );
 }
-

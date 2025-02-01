@@ -1,7 +1,9 @@
-import React, { useEffect, useState } from "react";
+import React, { useState, useEffect } from "react"; // Add useState here
 import { Link, NavLink } from "react-router-dom";
-
+import { useAuthContext } from "../context/AuthContext"; // Use the custom hook
+import martImage from '../assets/Mart.png';
 const Header = () => {
+  const { authUser, logout } = useAuthContext(); // Get authUser and logout from context
   const [isOpen, setIsOpen] = useState(false);
 
   // Toggle the menu
@@ -21,7 +23,7 @@ const Header = () => {
   return (
     <nav className="bg-brown-600 flex items-center justify-between px-4 py-2 shadow-md">
       {/* Logo */}
-      <img src="" alt="Logo" width="30" className="rounded-full" />
+      <img src={martImage} alt="Logo" width="50" className="rounded-full" />
 
       {/* Navigation */}
       <ul className="flex items-center space-x-4">
@@ -38,12 +40,34 @@ const Header = () => {
         <li className="md:block">
           <Link to="/" className="text-white hover:underline">Home</Link>
         </li>
-        <li className="hidden md:block">
-          <Link to="/login" className="text-white hover:underline">Sign in</Link>
-        </li>
-        <li className="hidden md:block">
-          <Link to="/signup" className="text-white hover:underline">Sign up</Link>
-        </li>
+
+        {authUser ? (
+          // If user is logged in, show "Profile" and "Logout"
+          <>
+            <li className="md:block">
+              <Link to="/profile" className="text-white hover:underline">Profile</Link>
+            </li>
+            <li className="md:block">
+              <button
+                onClick={logout}
+                className="text-white hover:underline"
+              >
+                Logout
+              </button>
+            </li>
+          </>
+        ) : (
+          // If user is not logged in, show "Sign in" and "Sign up"
+          <>
+            <li className="hidden md:block">
+              <Link to="/login" className="text-white hover:underline">Sign in</Link>
+            </li>
+            <li className="hidden md:block">
+              <Link to="/signup" className="text-white hover:underline">Sign up</Link>
+            </li>
+          </>
+        )}
+
         <li className="hidden md:block">
           <NavLink to="/sell-page" className="text-white hover:underline">Sell</NavLink>
         </li>
@@ -67,18 +91,37 @@ const Header = () => {
           {/* Dropdown Menu */}
           {isOpen && (
             <div className="absolute right-0 mt-2 w-48 bg-white border border-brown-800 rounded-lg shadow-lg z-10">
-              <Link
-                to="/signin"
-                className="block px-4 py-2 text-gray-800 hover:bg-brown-100"
-              >
-                Sign in
-              </Link>
-              <Link
-                to="/signup"
-                className="block px-4 py-2 text-gray-800 hover:bg-brown-100"
-              >
-                Sign up
-              </Link>
+              {authUser ? (
+                <>
+                  <Link
+                    to="/profile"
+                    className="block px-4 py-2 text-gray-800 hover:bg-brown-100"
+                  >
+                    Profile
+                  </Link>
+                  <button
+                    onClick={logout}
+                    className="block px-4 py-2 text-gray-800 hover:bg-brown-100"
+                  >
+                    Logout
+                  </button>
+                </>
+              ) : (
+                <>
+                  <Link
+                    to="/signin"
+                    className="block px-4 py-2 text-gray-800 hover:bg-brown-100"
+                  >
+                    Sign in
+                  </Link>
+                  <Link
+                    to="/signup"
+                    className="block px-4 py-2 text-gray-800 hover:bg-brown-100"
+                  >
+                    Sign up
+                  </Link>
+                </>
+              )}
               <NavLink
                 to="/sell-page"
                 className="block px-4 py-2 text-gray-800 hover:bg-brown-100"

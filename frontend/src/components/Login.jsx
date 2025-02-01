@@ -1,31 +1,39 @@
 import React, { useState } from 'react';
-import { User, Lock } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { User, Lock } from 'lucide-react';
+import { useAuthContext } from '../context/AuthContext'; // Import useAuthContext
 
 const Login = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const { setAuthUser } = useAuthContext(); // Use setAuthUser from AuthContext
+  const navigate = useNavigate();
 
-  const handleLogin = async () => {
+  const handleLogin = async (e) => {
+    e.preventDefault();
+
     try {
       const response = await fetch('/api/auth/login', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ username, password })
+        body: JSON.stringify({ username, password }),
       });
 
       const data = await response.json();
 
       if (response.ok) {
-        alert(data.message);
+        localStorage.setItem('user', JSON.stringify(data)); // Save user data to localStorage
+        setAuthUser(data); // Update authUser in context
+        navigate('/'); // Redirect to home page
       } else {
-        alert(data.message || 'Login failed');
+        setError(data.message || 'Login failed'); // Display error message
       }
     } catch (error) {
       console.error('Login error:', error);
-      alert('An error occurred during login');
+      setError('An error occurred during login');
     }
   };
 
@@ -41,6 +49,7 @@ const Login = () => {
             <p className="text-sm text-brown-600">Please sign in to continue</p>
           </div>
           <div className="mt-6 space-y-4">
+            {error && <p className="text-sm text-red-600 text-center">{error}</p>}
             <div className="relative">
               <User className="absolute left-3 top-3 h-4 w-4 text-brown-400" />
               <input
