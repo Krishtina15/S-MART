@@ -1,12 +1,21 @@
-import React from 'react';
-import { Navigate } from 'react-router-dom';
-import { useAuthContext } from '../context/AuthContext'; // Adjust the path as needed
-
+import React, { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAuthContext } from "../context/AuthContext";
 const ProtectedRoute = ({ children }) => {
   const { authUser } = useAuthContext();
+  const navigate = useNavigate();
+  
+  useEffect(() => {
+    if (!authUser) {
+      alert("Please log in to add a product.");
+      setTimeout(() => {
+        navigate('/login'); // Redirect to login page after a delay
+      }, 2000); // 2-second delay before redirecting
+    }
+  }, [authUser, navigate]);
 
   if (!authUser) {
-    return <Navigate to="/login" />; // Redirect to login if not authenticated
+    return null; // Don't render the SellPage until user is logged in
   }
 
   return children; // Render the protected component if authenticated

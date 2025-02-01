@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthContext } from "../context/AuthContext";
 
@@ -13,10 +13,18 @@ export default function SellPage() {
     images: null,
   });
 
-  
+  // If there is no user logged in, show a message and navigate to login
+  useEffect(() => {
+    if (!authUser) {
+      alert("Please log in to add a product.");
+      setTimeout(() => {
+        navigate('/login'); // Redirect to login page after a delay
+      }, 2000); // 2-second delay before redirecting
+    }
+  }, [authUser, navigate]);
+
   if (!authUser) {
-    navigate('/login');
-    return null; // Don't render the SellPage
+    return null; // Don't render the SellPage until user is logged in
   }
 
   // Handle input changes for productName, price, and description
@@ -107,7 +115,6 @@ export default function SellPage() {
   };
 
   return (
-    
     <form onSubmit={handleSubmit} className="max-w-3xl my-24 mx-auto p-6 bg-brown-50 shadow-md rounded-md space-y-8">
       <div className="space-y-2">
         <label className="block text-brown-800 font-semibold">Product Name:</label>
@@ -193,4 +200,3 @@ export default function SellPage() {
     </form>
   );
 }
-
