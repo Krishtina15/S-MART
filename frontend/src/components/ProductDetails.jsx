@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react';
 
 const ProductDetails = () => {
     const { id } = useParams();
+    console.log("Product ID from useParams:", id);
     const [product, setProduct] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -12,23 +13,27 @@ const ProductDetails = () => {
     useEffect(() => {
         const fetchProduct = async () => {
             try {
-                const { data } = await axios.get(`http://localhost:3000/api/products/${id}`);
-                if (data && data.data) {
-                    setProduct(data.data);  // Set the product data
+                console.log(`Fetching product with ID: ${id}`);
+                const response = await axios.get(`/api/products/${id}`);
+                console.log("API Response:", response.data);
+                
+                if (response.data && response.data.data) {
+                    setProduct(response.data.data);
                 } else {
-                    setError('Product not found');  // Handle case when no product is found
+                    setError("Product not found");
                 }
             } catch (error) {
-                console.error('Error fetching product:', error);
-                setError('Unexpected error occurred');
+                console.error("Error fetching product:", error.response?.data || error.message);
+                setError("Unexpected error occurred");
             } finally {
-                setLoading(false);  // Set loading to false once data is fetched
+                setLoading(false);
             }
         };
-
+        
+    
         fetchProduct();
     }, [id]);
-
+    
     if (loading) {
         return <p>Loading...</p>;  // Show loading message while fetching data
     }
@@ -36,6 +41,10 @@ const ProductDetails = () => {
     if (error) {
         return <p>{error}</p>;  // Show error message if there's an issue
     }
+
+    if (!product) {
+        return <p>Product not found</p>; // Handle case when product is null
+      }
 
     return (
         <main>
