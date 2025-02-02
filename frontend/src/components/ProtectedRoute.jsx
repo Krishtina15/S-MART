@@ -10,7 +10,7 @@ const ProtectedRoute = ({ children }) => {
       alert("Please log in to add a product.");
       setTimeout(() => {
         navigate('/login'); // Redirect to login page after a delay
-      }, 2000); // 2-second delay before redirecting
+      }, 500); // 2-second delay before redirecting
     }
   }, [authUser, navigate]);
 

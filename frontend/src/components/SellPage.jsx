@@ -14,14 +14,6 @@ export default function SellPage() {
   });
 
   // If there is no user logged in, show a message and navigate to login
-  useEffect(() => {
-    if (!authUser) {
-      alert("Please log in to add a product.");
-      setTimeout(() => {
-        navigate('/login'); // Redirect to login page after a delay
-      }, 2000); // 2-second delay before redirecting
-    }
-  }, [authUser, navigate]);
 
   if (!authUser) {
     return null; // Don't render the SellPage until user is logged in
