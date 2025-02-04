@@ -5,9 +5,11 @@ import { useAuthContext } from "../context/AuthContext"; // Adjust the path as n
 
 const Signup = () => {
   const [username, setUsername] = useState('');
-  const [email, setEmail] = useState('');
+  const [email, setEmail]     = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [profilePicture, setProfilePicture] = useState(null);
+  const [profilePicturePreview, setProfilePicturePreview] = useState(null);
   const { setAuthUser } = useAuthContext(); // Destructure setAuthUser from the context
   const navigate = useNavigate();
 
@@ -20,21 +22,28 @@ const Signup = () => {
     }
 
     try {
+      // Create a FormData object to handle file upload along with other fields
+      const formData = new FormData();
+      formData.append('username', username);
+      formData.append('email', email);
+      formData.append('password', password);
+      formData.append('confirmPassword', confirmPassword);
+      formData.append('profilePicture', profilePicture);
+    
+    
       const response = await fetch('/api/auth/signup', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          username,
-          email,
-          password, 
-          confirmPassword,
-        }),
+        body: formData,
       });
-
-      const data = await response.json();
-      console.log("API Response:", data); // Debugging
+      
+      if (!response.ok) {
+        const errorText = await response.text(); // Get the raw response text
+        console.error("Error response:", errorText); // Log the error response for debugging
+        alert(errorText.error || 'An error occured')
+        throw new Error("Signup failed: " + errorText);
+      }
+      
+      const data = await response.json(); // Now parse the JSON
 
       if (data.error) {
         throw new Error(data.error);
@@ -44,9 +53,6 @@ const Signup = () => {
       setAuthUser(data); // Update the auth user in the context
 
       if (response.ok) {
-        localStorage.setItem("user", JSON.stringify(data));
-      setAuthUser(data); // Update the auth user in the context
-
         navigate('/');
       } else {
         alert(data.message || 'Signup failed');
@@ -74,7 +80,7 @@ const Signup = () => {
               <input
                 type="text"
                 placeholder="Username"
-                value={username}
+                value={username || ''}
                 onChange={(e) => setUsername(e.target.value)}
                 required
                 className="w-full pl-10 pr-3 py-2 border border-brown-300 rounded-md focus:outline-none focus:ring-2 focus:ring-brown-500 focus:border-transparent"
@@ -85,18 +91,41 @@ const Signup = () => {
               <input
                 type="email"
                 placeholder="Email"
-                value={email}
+                value={email || ''}
                 onChange={(e) => setEmail(e.target.value)}
                 required
                 className="w-full pl-10 pr-3 py-2 border border-brown-300 rounded-md focus:outline-none focus:ring-2 focus:ring-brown-500 focus:border-transparent"
               />
+            </div>
+            {/* Profile Picture Upload */}
+            <div className="relative">
+              <label className="block text-brown-900 mb-2">Profile Picture</label>
+              <input
+                type="file"
+                name='profilePicture'
+                placeholder='profilePicture'
+                accept="image/*"
+                onChange={(e) => {
+                  const file = e.target.files[0];
+                  setProfilePicture(file);
+                  setProfilePicturePreview(URL.createObjectURL(file));
+                }}
+                className="w-full p-2 border border-brown-300 rounded-md focus:outline-none focus:ring-2 focus:ring-brown-500 focus:border-transparent"
+              />
+              {profilePicturePreview && (
+                <img
+                  src={profilePicturePreview}
+                  alt="Profile Preview"
+                  className="mt-2 w-20 h-20 object-cover rounded-full"
+                />
+              )}
             </div>
             <div className="relative">
               <Lock className="absolute left-3 top-3 h-4 w-4 text-brown-400" />
               <input
                 type="password"
                 placeholder="Password"
-                value={password}
+                value={password || ''}
                 onChange={(e) => setPassword(e.target.value)}
                 required
                 minLength={6}
@@ -108,7 +137,7 @@ const Signup = () => {
               <input
                 type="password"
                 placeholder="Confirm Password"
-                value={confirmPassword}
+                value={confirmPassword || ''}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 required
                 minLength={6}

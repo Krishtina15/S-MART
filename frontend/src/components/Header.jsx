@@ -55,6 +55,9 @@ const Header = () => {
                 Logout
               </button>
             </li>
+            <li className="md:block">
+          <Link to="/profile" className="text-white hover:underline">Profile</Link>
+        </li>
           </>
         ) : (
           // If user is not logged in, show "Sign in" and "Sign up"

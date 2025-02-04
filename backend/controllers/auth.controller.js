@@ -1,59 +1,81 @@
 import bcrypt from "bcryptjs";
 import User from "../models/user.model.js";
+import multer from "multer";
 import generateTokenAndSetCookie from "../utility/generateToken.js";
 
-export const signup = async (req, res) => {
-	try {
-		const { username, email, password, confirmPassword} = req.body;
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+	cb(null, 'uploads/profilePicture'); // Specify the directory for uploaded images
+  },
+  filename: (req, file, cb) => {
+	cb(null, `${Date.now()}-${file.originalname}`);
+  },
+});
 
-		
-
-		if (password !== confirmPassword) {
-			return res.status(400).json({ error: "Passwords don't match" });
-		}
-
-		const user = await User.findOne({ username });
-
-		if (user) {
-			return res.status(400).json({ error: "Username already exists" });
-		}
-
-		// HASH PASSWORD HERE
-		const salt = await bcrypt.genSalt(10);
-		const hashedPassword = await bcrypt.hash(password, salt);
-
-		 //https://avatar-placeholder.iran.liara.run/
-
-		//const boyProfilePic = `https://avatar.iran.liara.run/public/boy?username=${username}`;
-		//const girlProfilePic = `https://avatar.iran.liara.run/public/girl?username=${username}`;
-
-		const newUser = new User({
-			username,
-			email,
-			password: hashedPassword,
-			//gender,
-			//profilePic: gender === "male" ? boyProfilePic : girlProfilePic,
-		});
-
-		if (newUser) {
-			// Generate JWT token here
-			generateTokenAndSetCookie(newUser._id, res);
-			await newUser.save();
-
-			res.status(201).json({
-				_id: newUser._id,
-				username: newUser.username,
-				email: newUser.email,
-				//profilePic: newUser.profilePic,
-			});
-		} else {
-			res.status(400).json({ error: "Invalid user data" });
-		}
-	} catch (error) {
-		console.log("Error in signup controller", error.message);
-		res.status(500).json({ error: "Internal Server Error" });
+const upload = multer({
+  storage,
+  limits: { fileSize:1024 * 1024 },
+  fileFilter: (req, file, cb) => {
+	console.log("Uploading file:", file.originalname);
+	if (file.mimetype.startsWith("image/")) {
+	  cb(null, true);
+	} else {
+	  cb(new Error("Only image files are allowed"));
 	}
-};
+  },
+});
+
+export const uploadImages=upload.single('profilePicture');
+
+export const signup = async (req, res) => {
+	console.log("Request body:", req.body);
+	console.log("Request file:", req.file);
+	try {
+	  const { username, email, password, confirmPassword } = req.body;
+	  // Optionally, check if file is provided
+	  const profilePicture = req.file ? req.file.path : ''; // or set a default URL
+  
+	  if (password !== confirmPassword) {
+		return res.status(400).json({ error: "Passwords don't match" });
+	  }
+  
+	  const userExists = await User.findOne({ username });
+	  if (userExists) {
+		return res.status(400).json({ error: "Username already exists" });
+	  }
+
+	  const emailExists = await User.findOne({ email });
+	  if (emailExists) {
+		return res.status(400).json({ error: "Email already exists" });
+	  }
+  
+	  // HASH PASSWORD
+	  const salt = await bcrypt.genSalt(10);
+	  const hashedPassword = await bcrypt.hash(password, salt);
+  
+	  const newUser = new User({
+		username,
+		email,
+		profilePicture, // now defined from req.file
+		password: hashedPassword,
+	  });
+  
+	  // Generate JWT token here
+	  generateTokenAndSetCookie(newUser._id, res);
+	  await newUser.save();
+  
+	  res.status(201).json({
+		_id: newUser._id,
+		username: newUser.username,
+		email: newUser.email,
+		profilePicture: newUser.profilePicture,
+	  });
+	} catch (error) {
+	  console.log("Error in signup controller", error.message);
+	  res.status(500).json({ error: "Internal Server Error" });
+	}
+  };
+  
 
 export const login = async (req, res) => {
 	try {
