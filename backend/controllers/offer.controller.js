@@ -155,26 +155,29 @@ export const getOffersByUser = async (req, res) => {
 };
 
 export const findOffer = async (req,res)=>{
-    const { proId, buyId } = req.body;
-    console.log(proId);
-    console.log(buyId);
-
+    const { productId } = req.params;
+    const buyerId = req.user._id;
+    console.log(productId)
+    console.log(buyerId)
     if (!productId || !buyerId) {
         return res.status(400).json({ success: false, message: "Missing parameters" });
     }
+    if (!mongoose.Types.ObjectId.isValid(productId)) {
+        return res.status(400).json({ success: false, message: "Invalid productId format" });
+      }
     try {
         const offer = await Offer.findOne({ 
-            productId: proId,
-            buyerId: buyId
+            productId: productId,
+            buyerId: buyerId
         });
-
+        console.log(offer)
         if (!offer) {
             return res.status(404).json({ success: false, message: "Offer not found" });
         }
 
         res.json({ success: true, offerId: offer._id, offer });
     } catch (error) {
-        console.log(error);
-        res.status(500).json({ success: false, message: "Server error", error });
+        console.log(error)
+        //res.status(500).json({ success: false, message: "Server error", error });
     }
 }

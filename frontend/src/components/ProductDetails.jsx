@@ -70,18 +70,15 @@ const ProductDetails = () => {
       alert("Offer made successfully!");
       setShowOfferBox(false);
 
-      // Add the new offer to the offers state
-      setOffers((prevOffers) => [...prevOffers, response.data.data]);
-    } catch (error) {
+      } catch (error) {
+        console.log(error)
       alert("Error making offer");
     }
   };
 
-  const getOfferId = async (productId, buyerId) => {
+  const getOfferId = async () => {
     try {
-        const response = await axios.get("http://localhost:8000/api/offers/find", {
-            params: { productId, buyerId },
-        });
+        const response = await axios.get(`http://localhost:8000/api/offers/find/${id}`,{ withCredentials: true });
 
         console.log("Offer Response:", response.data); // Debugging
 
@@ -99,7 +96,9 @@ const ProductDetails = () => {
 
   const handleEditOffer = async () => {
     
-    const offerId = await getOfferId(id, authUser._id);
+    const offerId = await getOfferId();
+    console.log(id)
+    console.log(offerId)
     if (!offerId) {
         alert("Offer not founds");
         return;

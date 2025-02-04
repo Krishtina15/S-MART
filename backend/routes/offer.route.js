@@ -19,6 +19,6 @@ router.post("/offers/accept/:id", protectRoute, acceptOffer);
 
 router.post("/sell-product", protectRoute, sellProduct);
 
-router.get("/offers/find", protectRoute, findOffer);
+router.get("/offers/find/:productId", protectRoute, findOffer);
 
 export default router;
