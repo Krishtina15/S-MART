@@ -10,7 +10,7 @@ import { connectDB } from "./config/db.js";
 import authRoutes from "./routes/auth.routes.js";
 import productRoutes from "./routes/product.route.js";
 import messageRoutes from "./routes/message.routes.js";
-
+import offerRoutes from "./routes/offer.route.js";
 
 dotenv.config();
 
@@ -27,6 +27,7 @@ app.use('/uploads', express.static('uploads'));
 app.use("/api/auth", authRoutes);
 app.use("/api/products", productRoutes);
 app.use("/api/messages", messageRoutes);
+app.use("/api",offerRoutes)
 
 if (process.env.NODE_ENV === "production") {
 	app.use(express.static(path.join(__dirname, "/frontend")));

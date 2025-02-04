@@ -1,15 +1,18 @@
 import React, { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import axios from "axios";
-import { useAuthContext } from "../context/AuthContext"; // Import useAuthContext
+import { useAuthContext } from "../context/AuthContext";
 
 const ProductDetails = () => {
   const { id } = useParams();
   const [product, setProduct] = useState(null);
+  const [offers, setOffers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const { authUser } = useAuthContext(); // Get the authenticated user
+  const [price, setPrice] = useState(null);
+  const [showOfferBox, setShowOfferBox] = useState(false);
+  const { authUser } = useAuthContext();
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -17,6 +20,7 @@ const ProductDetails = () => {
         const response = await axios.get(`http://localhost:8000/api/products/${id}`);
         if (response.data && response.data.data) {
           setProduct(response.data.data);
+          setPrice(response.data.data.price);
         } else {
           setError("Product not found");
         }
@@ -27,7 +31,17 @@ const ProductDetails = () => {
       }
     };
 
+    const fetchOffers = async () => {
+      try {
+        const response = await axios.get(`http://localhost:8000/api/offers/${id}`);
+        setOffers(response.data.data);
+      } catch (error) {
+        console.error("Error fetching offers:", error);
+      }
+    };
+
     fetchProduct();
+    fetchOffers();
   }, [id]);
 
   const handleNext = () => {
@@ -40,6 +54,85 @@ const ProductDetails = () => {
     setCurrentImageIndex((prevIndex) =>
       prevIndex === 0 ? product.images.length - 1 : prevIndex - 1
     );
+  };
+
+  const handlePriceChange = (change) => {
+    setPrice((prevPrice) => Math.max(prevPrice + change, product.price));
+  };
+
+  const handleMakeOffer = async () => {
+    try {
+      const response = await axios.post(
+        "http://localhost:8000/api/make-offer",
+        { productId: id, price },
+        { withCredentials: true }
+      );
+      alert("Offer made successfully!");
+      setShowOfferBox(false);
+
+      // Add the new offer to the offers state
+      setOffers((prevOffers) => [...prevOffers, response.data.data]);
+    } catch (error) {
+      alert("Error making offer");
+    }
+  };
+
+  const getOfferId = async (productId, buyerId) => {
+    try {
+        const response = await axios.get("http://localhost:8000/api/offers/find", {
+            params: { productId, buyerId },
+        });
+
+        console.log("Offer Response:", response.data); // Debugging
+
+        if (response.data.success) {
+            return response.data.offerId; // Extract the offerId
+        } else {
+            console.log("Offer not founds");
+            return null;
+        }
+    } catch (error) {
+        console.error("Error fetching offer:", error);
+        return null;
+    }
+};
+
+  const handleEditOffer = async () => {
+    
+    const offerId = await getOfferId(id, authUser._id);
+    if (!offerId) {
+        alert("Offer not founds");
+        return;
+      }
+    
+    try {
+      const response = await axios.put(
+        `http://localhost:8000/api/offers/edit/${offerId}`,
+        { price},
+        { withCredentials: true }
+      );
+      alert("Offer updated successfully!");
+      
+       // Update the offers state with the updated offer
+       setOffers((prevOffers) =>
+        prevOffers.map((offer) =>
+          offer._id === offerId ? { ...offer, price: response.data.data.price } : offer
+        )
+      );
+      
+    } catch (error) {
+      console.log(error);
+      alert("Error updating offer");
+    }
+  };
+
+  const handleSellOffer = async (offerId) => {
+    try {
+      await axios.post(`http://localhost:8000/api/offers/accept/${id}`, { productId: id, offerId });
+      alert("Accepted successfully!");
+    } catch (error) {
+      alert("Error selling product");
+    }
   };
 
   if (loading) {
@@ -94,20 +187,131 @@ const ProductDetails = () => {
 
             {/* Action Buttons */}
             <div className="grid grid-cols-1 gap-4">
-              <button className="w-full py-3 bg-brown-600 text-white rounded-lg hover:bg-brown-700 transition">
-                Make Offer
-              </button>
-              <button className="w-full py-3 bg-brown-200 text-brown-800 rounded-lg hover:bg-brown-300 transition">
-                Chat with Seller
-              </button>
-              {/* Conditionally render the Update button */}
+              {/* Seller view */}
               {authUser && authUser._id === product.userId && (
-                <Link
-                  to={`/update-product/${product._id}`}
-                  className="block text-center w-full py-3 border border-brown-300 text-brown-700 rounded-lg hover:bg-brown-100 transition"
-                >
-                  Update Product
-                </Link>
+                <div>
+                  <Link
+                    to={`/update-product/${product._id}`}
+                    className="w-full py-3 bg-brown-600 text-white rounded-lg hover:bg-brown-700 transition text-center block mb-4"
+                  >
+                    Update Product
+                  </Link>
+
+                  <h2 className="text-xl font-semibold text-brown-800">Offers</h2>
+                  <table className="w-full table-auto border-collapse">
+                    <thead>
+                      <tr>
+                        <th className="text-left p-3 bg-brown-100 text-brown-800">Buyer</th>
+                        <th className="text-left p-3 bg-brown-100 text-brown-800">Price</th>
+                        <th className="text-left p-3 bg-brown-100 text-brown-800">Action</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {offers.map((offer) => (
+                        <tr key={offer._id}>
+                          <td className="p-3 text-brown-600">{offer.buyerId.username}</td>
+                          <td className="p-3 text-brown-600">${offer.price}</td>
+                          <td className="p-3">
+                            <button
+                              onClick={() => handleSellOffer(offer._id)}
+                              className="py-2 px-4 bg-green-600 text-white rounded-md hover:bg-green-700"
+                            >
+                              Accept Offer
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+
+              {/* Buyer view */}
+              {authUser && authUser._id !== product.userId && (
+                <>
+                  {offers.some((offer) => offer.buyerId._id === authUser._id) ? (
+                    // If the user has already made an offer, show "Update Offer"
+                    <div className="space-y-4">
+                      <button
+                        onClick={() => setShowOfferBox(true)}
+                        className="w-full py-3 bg-brown-600 text-white rounded-lg hover:bg-brown-700 transition"
+                      >
+                        Update Offer
+                      </button>
+                      {showOfferBox && (
+                        <div className="flex items-center justify-center space-x-4">
+                          <button
+                            onClick={() => handlePriceChange(-5)}
+                            className="py-2 px-4 bg-brown-600 text-white rounded-lg hover:bg-brown-700 transition"
+                          >
+                            -
+                          </button>
+                          <input
+                            type="number"
+                            value={price}
+                            onChange={(e) => setPrice(Number(e.target.value))}
+                            className="w-24 py-2 px-4 border border-brown-600 rounded-lg text-center text-brown-800"
+                          />
+                          <button
+                            onClick={() => handlePriceChange(5)}
+                            className="py-2 px-4 bg-brown-600 text-white rounded-lg hover:bg-brown-700 transition"
+                          >
+                            +
+                          </button>
+                        </div>
+                      )}
+                      {showOfferBox && (
+                        <button
+                          onClick={handleEditOffer}
+                          className="w-full py-3 bg-brown-600 text-white rounded-lg hover:bg-brown-700 transition"
+                        >
+                          Confirm Update
+                        </button>
+                      )}
+                    </div>
+                  ) : (
+                    // If the user hasn't made an offer, show "Make Offer"
+                    <>
+                      {showOfferBox ? (
+                        <div className="flex items-center justify-center space-x-4">
+                          <button
+                            onClick={() => handlePriceChange(-5)}
+                            className="py-2 px-4 bg-brown-600 text-white rounded-lg hover:bg-brown-700 transition"
+                          >
+                            -
+                          </button>
+                          <input
+                            type="number"
+                            value={price}
+                            onChange={(e) => setPrice(Number(e.target.value))}
+                            className="w-24 py-2 px-4 border border-brown-600 rounded-lg text-center text-brown-800"
+                          />
+                          <button
+                            onClick={() => handlePriceChange(5)}
+                            className="py-2 px-4 bg-brown-600 text-white rounded-lg hover:bg-brown-700 transition"
+                          >
+                            +
+                          </button>
+                        </div>
+                      ) : (
+                        <button
+                          onClick={() => setShowOfferBox(true)}
+                          className="w-full py-3 bg-brown-600 text-white rounded-lg hover:bg-brown-700 transition"
+                        >
+                          Make Offer
+                        </button>
+                      )}
+                      {showOfferBox && (
+                        <button
+                          onClick={handleMakeOffer}
+                          className="w-full py-3 bg-brown-600 text-white rounded-lg hover:bg-brown-700 transition"
+                        >
+                          Confirm Offer
+                        </button>
+                      )}
+                    </>
+                  )}
+                </>
               )}
             </div>
           </div>

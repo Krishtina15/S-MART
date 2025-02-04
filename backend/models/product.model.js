@@ -53,6 +53,11 @@ const productSchema = new mongoose.Schema({
         type: Boolean,
         default:false,
     },
+    buyerId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+        default: null,
+      },
 }, { timestamps: true });
 
 const Product = mongoose.model('Product', productSchema);
