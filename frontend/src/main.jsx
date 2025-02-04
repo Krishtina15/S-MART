@@ -11,6 +11,7 @@ import Profile from './components/Profile';
 import About from './components/About';
 import Login from './components/Login';
 import Signup from './components/Signup';
+import UpdateProduct from "./components/UpdateProduct";
 import ProtectedRoute from './components/ProtectedRoute'; // Import ProtectedRoute
 import ChatPage from './components/Chatpage.jsx';
 
@@ -33,6 +34,14 @@ const router = createBrowserRouter([
         element: (
           <ProtectedRoute>
             <SellPage />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "update-product/:id",
+        element: (
+          <ProtectedRoute>
+            <UpdateProduct />
           </ProtectedRoute>
         ),
       },
