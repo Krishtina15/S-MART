@@ -13,6 +13,7 @@ import Login from './components/Login';
 import Signup from './components/Signup';
 import UpdateProduct from "./components/UpdateProduct";
 import ProtectedRoute from './components/ProtectedRoute'; // Import ProtectedRoute
+import ChatPage from './components/Chatpage.jsx';
 
 // Router setup
 const router = createBrowserRouter([
@@ -64,6 +65,14 @@ const router = createBrowserRouter([
           </ProtectedRoute>
         ),
       },
+      {
+        path: 'chat' ,
+        element:(
+          <ProtectedRoute>
+            <ChatPage/>
+          </ProtectedRoute>
+        )
+      }
     ],
   },
 ]);
