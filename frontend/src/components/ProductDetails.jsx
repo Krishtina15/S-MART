@@ -1,6 +1,7 @@
-import axios from 'axios';
-import { useParams } from 'react-router-dom';
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from "react";
+import { useParams, Link } from "react-router-dom";
+import axios from "axios";
+import { useAuthContext } from "../context/AuthContext"; // Import useAuthContext
 
 const ProductDetails = () => {
   const { id } = useParams();
@@ -86,20 +87,31 @@ const ProductDetails = () => {
             </div>
           </div>
 
-                    {/* Price and Actions */}
-                    <div className="bg-white p-8 rounded-lg shadow-lg flex flex-col justify-center space-y-6">
-                        <h1 className="text-3xl font-bold text-brown-800">{product.productName}</h1>
-                        <div className="text-2xl font-semibold text-brown-600">${product.price}</div>
-                        <div className="space-y-4">
-                            <button className="w-full py-3 bg-brown-600 text-white rounded-lg hover:bg-brown-700 transition">
-                                Make Offer
-                            </button>
-                            <button className="w-full py-3 bg-brown-200 text-brown-800 rounded-lg hover:bg-brown-300 transition">
-                                Chat with Seller
-                            </button>
-                        </div>
-                    </div>
-                </div>
+          {/* Price and Actions */}
+          <div className="bg-white p-8 rounded-lg shadow-lg flex flex-col space-y-6">
+            <h1 className="text-3xl font-bold text-brown-800">{product.productName}</h1>
+            <div className="text-2xl font-semibold text-brown-600">${product.price}</div>
+
+            {/* Action Buttons */}
+            <div className="grid grid-cols-1 gap-4">
+              <button className="w-full py-3 bg-brown-600 text-white rounded-lg hover:bg-brown-700 transition">
+                Make Offer
+              </button>
+              <button className="w-full py-3 bg-brown-200 text-brown-800 rounded-lg hover:bg-brown-300 transition">
+                Chat with Seller
+              </button>
+              {/* Conditionally render the Update button */}
+              {authUser && authUser._id === product.userId && (
+                <Link
+                  to={`/update-product/${product._id}`}
+                  className="block text-center w-full py-3 border border-brown-300 text-brown-700 rounded-lg hover:bg-brown-100 transition"
+                >
+                  Update Product
+                </Link>
+              )}
+            </div>
+          </div>
+        </div>
 
         {/* Product Details Section */}
         <section className="bg-white p-8 rounded-lg shadow-xl">
