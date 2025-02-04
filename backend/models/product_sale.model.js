@@ -2,18 +2,21 @@ import mongoose from "mongoose";
 
 const saleSchema = new mongoose.Schema(
 	{
-		product_id:{
+		sellerId:{
+            type: mongoose.Schema.Types.ObjectId,
+			ref: "User",
+			required: true,
+        },
+        buyerId:{
+            type: mongoose.Schema.Types.ObjectId,
+			ref: "User",
+			required: true,
+        },
+        productId:{
             type: mongoose.Schema.Types.ObjectId,
 			ref: "Product",
+            required: true,
         },
-        sold_quantity:{
-            type:Number,
-            min:1,
-        },
-        discount:{
-            type: Number,
-            ref: "Product"
-        }
 	},{ timestamps:true}
 );
 

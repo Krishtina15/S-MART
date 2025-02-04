@@ -44,7 +44,15 @@ const productSchema = new mongoose.Schema({
             type: mongoose.Schema.Types.ObjectId,
             ref: "User",
             required: true
-    }
+    },
+    views:{
+            type: Number,
+            default:0,
+    },
+    sold:{
+        type: Boolean,
+        default:false,
+    },
 }, { timestamps: true });
 
 const Product = mongoose.model('Product', productSchema);
