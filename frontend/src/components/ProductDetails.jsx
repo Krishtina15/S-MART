@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { useParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 
 const ProductDetails = () => {
     const { id } = useParams();
@@ -94,8 +95,10 @@ const ProductDetails = () => {
                             <button className="w-full py-3 bg-brown-600 text-white rounded-lg hover:bg-brown-700 transition">
                                 Make Offer
                             </button>
-                            <button className="w-full py-3 bg-brown-200 text-brown-800 rounded-lg hover:bg-brown-300 transition">
-                                Chat with Seller
+                            <button 
+                           
+                            className="w-full py-3 bg-brown-200 text-brown-800 rounded-lg hover:bg-brown-300 transition">
+                                 <Link to="/chat/id">Chat with Seller</Link>
                             </button>
                         </div>
                     </div>
