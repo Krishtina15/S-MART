@@ -13,7 +13,7 @@ const ProductDetails = () => {
     useEffect(() => {
         const fetchProduct = async () => {
             try {
-                const response = await axios.get(`http://localhost:8000/api/products/${id}`);
+                const response = await axios.get(`api/products/${id}`);
                 if (response.data && response.data.data) {
                     setProduct(response.data.data);
                 } else {
@@ -98,7 +98,7 @@ const ProductDetails = () => {
                             <button 
                            
                             className="w-full py-3 bg-brown-200 text-brown-800 rounded-lg hover:bg-brown-300 transition">
-                                 <Link to="/chat/id">Chat with Seller</Link>
+                                 <Link to="/chat/{}">Chat with Seller</Link>
                             </button>
                         </div>
                     </div>
