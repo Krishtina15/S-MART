@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
-
+import { useAuthContext } from "../context/AuthContext";
 const Profile = () => {
+  const { authUser } = useAuthContext();
   const [activeTab, setActiveTab] = useState('profile');
   const [user, setUser] = useState({
     username: '',
@@ -13,23 +14,25 @@ const Profile = () => {
   });
 
   useEffect(() => {
+    if (!authUser?._id) return;
     const fetchProfile = async () => {
       try {
-        const res = await axios.get('http://localhost:8000/user');
-        console.log("Fetched user data:", res.data);
-        setUser(res.data);
+        const res = await axios.get(`http://localhost:8000/api/user/${authUser._id}`,{ withCredentials: true });
+        console.log("Fetched user data:", res.data.data);
+        setUser(res.data.data);
       } catch (err) {
         console.error(err);
       }
     };
     fetchProfile();
-  }, []);
+  }, [authUser]);
 
   const handleUpdate = async (e) => {
     e.preventDefault();
+    const id = authUser._id;
     try {
-      const res = await axios.put('http://localhost:8000/user', user);
-      setUser(res.data);
+      const res = await axios.put(`http://localhost:8000/api/user/${id}`, {user},{ withCredentials: true });
+      setUser(res.data.data);
     } catch (err) {
       console.error(err);
     }
@@ -40,11 +43,14 @@ const Profile = () => {
       <div className="max-w-6xl mx-auto bg-white rounded-lg shadow-lg p-6">
         {/* Profile Header */}
         <div className="text-center mb-8">
-          <img 
-            src={user.profilePicture || '/default-avatar.png'} 
-            alt="Profile"
-            className="w-32 h-32 rounded-full mx-auto mb-4 border-4 border-brown-200"
-          />
+        <img 
+          src={user.profilePicture 
+               ? `http://localhost:8000/${user.profilePicture.replace(/\\/g, "/")}` 
+               : "/default-avatar.png"} 
+          alt="Profile"
+          className="w-32 h-32 rounded-full mx-auto mb-4 border-4 border-brown-200"
+        />
+
           <h1 className="text-3xl font-bold text-brown-900">{user.username}</h1>
           <p className="text-brown-600">{user.email}</p>
         </div>

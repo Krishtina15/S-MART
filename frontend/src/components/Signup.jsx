@@ -3,7 +3,7 @@ import { User, Lock, Mail } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthContext } from "../context/AuthContext"; // Adjust the path as needed
 
-const Signup = () => {
+export default function Signup() {
   const [username, setUsername] = useState('');
   const [email, setEmail]     = useState('');
   const [password, setPassword] = useState('');
@@ -80,7 +80,7 @@ const Signup = () => {
               <input
                 type="text"
                 placeholder="Username"
-                value={username || ''}
+                value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 required
                 className="w-full pl-10 pr-3 py-2 border border-brown-300 rounded-md focus:outline-none focus:ring-2 focus:ring-brown-500 focus:border-transparent"
@@ -91,7 +91,7 @@ const Signup = () => {
               <input
                 type="email"
                 placeholder="Email"
-                value={email || ''}
+                value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
                 className="w-full pl-10 pr-3 py-2 border border-brown-300 rounded-md focus:outline-none focus:ring-2 focus:ring-brown-500 focus:border-transparent"
@@ -163,4 +163,4 @@ const Signup = () => {
   );
 };
 
-export default Signup;
+
