@@ -5,12 +5,12 @@ import cookieParser from "cookie-parser";
 import cors from "cors";
 
 import { connectDB } from "./config/db.js";
-//import Product from "./models/product.model.js";
+import Product from "./models/product.model.js";
 import authRoutes from "./routes/auth.routes.js";
 import productRoutes from "./routes/product.route.js";
 import offerRoutes from "./routes/offer.route.js";
 import profileRoutes from "./routes/profile.route.js";
-import notificationRoutes from "./routes/message.routes.js"
+import notificationRoutes from "./routes/notification.route.js"
 dotenv.config();
 
 const app = express();
