@@ -15,7 +15,7 @@ import profileRoutes from "./routes/profile.route.js";
 import notificationRoutes from "./routes/message.routes.js"
 dotenv.config();
 
-//const app = express();
+const app = express();
 const PORT = process.env.PORT || 5000;
 
 const __dirname = path.resolve();
