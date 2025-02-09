@@ -3,6 +3,7 @@ import Product from "../models/product.model.js";
 import User from "../models/user.model.js";
 import Offer from "../models/offer.model.js";
 import {io} from "../socket/socket.js";
+import Notification from "../models/notification.model.js";
 
 // POST request to create a new offer
 export const createOffer = async (req, res) => {
@@ -113,27 +114,38 @@ export const acceptOffer = async (req, res) => {
     offer.status = "accepted";
     await offer.save();
 
+    // Save a notification for the buyer
+    const buyerNotification = new Notification({
+      userId: offer.buyerId,
+      message: "Your offer has been accepted! Please provide your card details.",
+      type: "offerAccepted",
+      metadata: { offerId: offer._id, productId: offer.productId },
+    });
+    await buyerNotification.save();
+
+    // Emit a socket event to the buyer
+    io.to(offer.buyerId).emit("newNotification", buyerNotification);
+
     await Offer.updateMany(
       { productId, _id: { $ne: offerId } },
       { status: "rejected" }
     );
   
-    const selectedId = offer.buyerId;
-
-    io.to(selectedId).emit("offerAccepted", {
-        message: "Your offer has been accepted! Please provide your card details.",
-        offer,
-      });
   
-      // Notify other buyers
-      const otherOffers = await Offer.find({ productId, _id: { $ne: offerId } });
-      otherOffers.forEach((otherOffer) => {
-        const notselectedId = otherOffer.buyerId;
-        io.to(notselectedId).emit("offerRejected", {
-          message: "Sorry, your offer has been canceled.",
-          offer: otherOffer,
-        });
+    // Notify other buyers whose offers were rejected
+    const otherOffers = await Offer.find({ productId: offer.productId, _id: { $ne: offerId } });
+    for (const otherOffer of otherOffers) {
+      const rejectedNotification = new Notification({
+        userId: otherOffer.buyerId,
+        message: "Sorry, your offer has been rejected.",
+        type: "offerRejected",
+        metadata: { offerId: otherOffer._id, productId: otherOffer.productId },
       });
+      await rejectedNotification.save();
+
+      // Emit a socket event to the rejected buyers
+      io.to(otherOffer.buyerId).emit("newNotification", rejectedNotification);
+    }
 
     res.status(200).json({ success: true, message: "Offer accepted", data: offer });
   } catch (error) {

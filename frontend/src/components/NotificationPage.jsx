@@ -1,12 +1,28 @@
 import React, { useEffect } from "react";
 import { useNotifications } from "../context/NotificationContext";
+import axios from "axios";
 
 const NotificationPage = () => {
-  const { notifications, clearNotifications } = useNotifications();
+  const { notifications, setNotifications } = useNotifications();
+
+  const markAsRead = async (notificationId) => {
+    try {
+      await axios.put(`http://localhost:8000/api/notifications/${notificationId}/read`);
+      setNotifications((prev) =>
+        prev.map((n) => (n._id === notificationId ? { ...n, read: true } : n))
+      );
+    } catch (error) {
+      console.error("Error marking notification as read:", error);
+    }
+  };
 
   useEffect(() => {
-    // This effect will run whenever the notifications array changes
-    // You can add any additional logic here if needed
+    // Mark all notifications as read when the page loads
+    notifications.forEach((notification) => {
+      if (!notification.read) {
+        markAsRead(notification._id);
+      }
+    });
   }, [notifications]);
 
   return (
@@ -16,14 +32,16 @@ const NotificationPage = () => {
         {notifications.map((notification, index) => (
           <div
             key={index}
-            className="p-4 bg-white rounded-lg shadow-md text-brown-600"
+            className={`p-4 bg-white rounded-lg shadow-md text-brown-600 ${
+              notification.read ? "opacity-75" : ""
+            }`}
           >
             <p>{notification.message}</p>
-            {notification.offer?.status === "accepted" && (
+            {notification.type === "offerAccepted" && (
               <button
                 onClick={() => {
                   // Redirect to payment details page
-                  window.location.href = "/payment-details";
+                  window.location.href = `/payment/${notification.metadata.offerId}`;
                 }}
                 className="mt-2 inline-block py-2 px-4 bg-green-600 text-white rounded-lg hover:bg-green-700"
               >
@@ -33,12 +51,6 @@ const NotificationPage = () => {
           </div>
         ))}
       </div>
-      <button
-        onClick={clearNotifications}
-        className="mt-6 py-2 px-4 bg-brown-600 text-white rounded-lg hover:bg-brown-700"
-      >
-        Clear Notifications
-      </button>
     </div>
   );
 };
