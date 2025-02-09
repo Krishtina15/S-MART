@@ -274,7 +274,13 @@ const ProductDetails = () => {
                     // If the user has already made an offer, show "Update Offer"
                     <div className="space-y-4">
                       <button
-                        onClick={() => setShowOfferBox(true)}
+                        onClick={()  => {
+                          const userOffer = offers.find((offer) => offer.buyerId._id === authUser._id);
+                          if (userOffer) {
+                            setPrice(userOffer.price); // Set the price to the user's previous offer
+                          }
+                          setShowOfferBox(true);
+                        }}
                         className="w-full py-3 bg-brown-600 text-white rounded-lg hover:bg-brown-700 transition"
                       >
                         Update Offer
