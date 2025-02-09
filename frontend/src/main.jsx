@@ -14,6 +14,9 @@ import Signup from './components/Signup';
 import UpdateProduct from "./components/UpdateProduct";
 import ProtectedRoute from './components/ProtectedRoute'; // Import ProtectedRoute
 import ChatPage from './components/Chatpage.jsx';
+import PaymentDetails from "./components/PaymentDetails";
+import NotificationPage from './components/NotificationPage.jsx';
+import { NotificationProvider } from "./context/NotificationContext";
 
 // Router setup
 const router = createBrowserRouter([
@@ -35,6 +38,22 @@ const router = createBrowserRouter([
           <ProtectedRoute>
             <SellPage />
           </ProtectedRoute>
+        ),
+      },
+      {
+        path: "payment-details",
+        element:(
+          <ProtectedRoute>
+          <PaymentDetails />
+        </ProtectedRoute>
+        ),
+      },
+      {
+        path: "notification",
+        element:(
+          <ProtectedRoute>
+          <NotificationPage />
+        </ProtectedRoute>
         ),
       },
       {
@@ -81,7 +100,9 @@ const router = createBrowserRouter([
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <AuthContextProvider>
+    <NotificationProvider>
       <RouterProvider router={router} />
+      </NotificationProvider>
     </AuthContextProvider>
   </StrictMode>
 );

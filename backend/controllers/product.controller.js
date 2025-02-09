@@ -157,3 +157,21 @@ export const deleteProduct = async (req, res) => {
     res.status(500).json({ success: false, message: "Server Error" });
   }
 };
+
+export const incrementView = async (req,res)=>{
+  try {
+    const product = await Product.findByIdAndUpdate(
+      req.params.id,
+      { $inc: { views: 1 } }, // Increment the views by 1
+      { new: true } // Return the updated document
+    );
+
+    if (!product) {
+      return res.status(404).json({ success: false, message: "Product not found" });
+    }
+
+    res.status(200).json({ success: true, data: product });
+  } catch (error) {
+    res.status(500).json({ success: false, message: "Server error", error: error.message });
+  }
+};

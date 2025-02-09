@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { useAuthContext } from "../context/AuthContext";
-
+import { useNotifications } from "../context/NotificationContext";
+import socket from "../utils/socket";
 const ProductDetails = () => {
   const { id } = useParams();
+  const navigate = useNavigate();
   const [product, setProduct] = useState(null);
   const [offers, setOffers] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -13,6 +15,7 @@ const ProductDetails = () => {
   const [price, setPrice] = useState(null);
   const [showOfferBox, setShowOfferBox] = useState(false);
   const { authUser } = useAuthContext();
+  const { addNotification } = useNotifications();
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -40,9 +43,46 @@ const ProductDetails = () => {
       }
     };
 
+    const incrementViews = async () => {
+        try {
+          await axios.put(`http://localhost:8000/api/products/${id}/increment-views`);
+        } catch (error) {
+          console.error("Error incrementing views:", error);
+        }
+      };
+    incrementViews(); 
     fetchProduct();
     fetchOffers();
+    
   }, [id]);
+  useEffect(() => {
+    if (authUser) {
+      // Listen for new offer notifications
+      socket.on("newOffer", (data) => {
+        addNotification(data);
+      });
+
+      // Listen for accepted offer notifications
+      socket.on("offerAccepted", (data) => {
+        addNotification(data);
+        if (authUser._id === data.offer.buyerId) {
+          navigate(`/payment/${data.offer._id}`); // Redirect to payment page
+        }
+      });
+
+      // Listen for rejected offer notifications
+      socket.on("offerRejected", (data) => {
+        addNotification(data);
+      });
+    }
+
+    // Cleanup on unmount
+    return () => {
+      socket.off("newOffer");
+      socket.off("offerAccepted");
+      socket.off("offerRejected");
+    };
+  }, [authUser, addNotification]);
 
   const handleNext = () => {
     setCurrentImageIndex((prevIndex) =>
@@ -126,11 +166,13 @@ const ProductDetails = () => {
   };
 
   const handleSellOffer = async (offerId) => {
+   // console.log(offerId);
     try {
-      await axios.post(`http://localhost:8000/api/offers/accept/${id}`, { productId: id, offerId });
+      await axios.post(`http://localhost:8000/api/offers/accept/${offerId}`, { productId: id, offerId },{ withCredentials: true });
       alert("Accepted successfully!");
     } catch (error) {
       alert("Error selling product");
+      console.log(error);
     }
   };
 

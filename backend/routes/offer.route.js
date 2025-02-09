@@ -15,7 +15,7 @@ router.get("/offers/user/:id", protectRoute, getOffersByUser);
 
 router.put("/offers/edit/:offerId", protectRoute, updateOffer);
 
-router.post("/offers/accept/:id", protectRoute, acceptOffer);
+router.post("/offers/accept/:offerId", protectRoute, acceptOffer);
 
 router.post("/sell-product", protectRoute, sellProduct);
 

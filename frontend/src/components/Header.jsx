@@ -48,6 +48,9 @@ const Header = () => {
               <Link to="/profile" className="text-white hover:underline">Profile</Link>
             </li>
             <li className="md:block">
+              <Link to="/notification" className="text-white hover:underline">Notification</Link>
+            </li>
+            <li className="md:block">
               <button
                 onClick={logout}
                 className="text-white hover:underline"
@@ -95,6 +98,12 @@ const Header = () => {
                 <>
                   <Link
                     to="/profile"
+                    className="block px-4 py-2 text-gray-800 hover:bg-brown-100"
+                  >
+                    Profile
+                  </Link>
+                  <Link
+                    to="/"
                     className="block px-4 py-2 text-gray-800 hover:bg-brown-100"
                   >
                     Profile

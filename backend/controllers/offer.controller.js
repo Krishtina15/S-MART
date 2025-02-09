@@ -2,6 +2,7 @@ import mongoose from 'mongoose';
 import Product from "../models/product.model.js";
 import User from "../models/user.model.js";
 import Offer from "../models/offer.model.js";
+import {io} from "../socket/socket.js";
 
 // POST request to create a new offer
 export const createOffer = async (req, res) => {
@@ -30,8 +31,14 @@ export const createOffer = async (req, res) => {
       status: 'pending', // Set the initial status of the offer to pending
     });
 
+    
+
     // Save the offer to the database
     await offer.save();
+    io.to(product.userId).emit("newOffer", {
+        message: "You have a new offer!",
+        offer,
+      });
     res.status(201).json({ success: true, data: offer });
   } catch (error) {
     console.error("Error creating offer:", error.message);
@@ -88,13 +95,14 @@ export const updateOffer = async (req, res) => {
 // Accept an offer (seller's action)
 export const acceptOffer = async (req, res) => {
   const { offerId } = req.params;
-
+  console.log(offerId);
   try {
     // Fetch the offer and check if it's valid
-    const offer = await Offer.findById(offerId).populate("productId");
+    const offer = await Offer.findById(offerId);
     if (!offer) {
       return res.status(404).json({ success: false, message: "Offer not found" });
     }
+    const productId= offer.productId;
 
     // Ensure only the seller can accept the offer
     if (offer.sellerId.toString() !== req.user._id.toString()) {
@@ -105,6 +113,28 @@ export const acceptOffer = async (req, res) => {
     offer.status = "accepted";
     await offer.save();
 
+    await Offer.updateMany(
+      { productId, _id: { $ne: offerId } },
+      { status: "rejected" }
+    );
+  
+    const selectedId = offer.buyerId;
+
+    io.to(selectedId).emit("offerAccepted", {
+        message: "Your offer has been accepted! Please provide your card details.",
+        offer,
+      });
+  
+      // Notify other buyers
+      const otherOffers = await Offer.find({ productId, _id: { $ne: offerId } });
+      otherOffers.forEach((otherOffer) => {
+        const notselectedId = otherOffer.buyerId;
+        io.to(notselectedId).emit("offerRejected", {
+          message: "Sorry, your offer has been canceled.",
+          offer: otherOffer,
+        });
+      });
+
     res.status(200).json({ success: true, message: "Offer accepted", data: offer });
   } catch (error) {
     console.error("Error accepting offer:", error.message);
@@ -114,14 +144,12 @@ export const acceptOffer = async (req, res) => {
 
 // Mark product as sold and notify the buyer (this is where you would handle the transaction)
 export const sellProduct = async (req, res) => {
-  const { productId, offerId } = req.body;
+  const { productId } = req.body;
 
   try {
-    // Find the offer and product
-    const offer = await Offer.findById(offerId);
     const product = await Product.findById(productId);
 
-    if (!offer || !product) {
+    if (!product) {
       return res.status(404).json({ success: false, message: "Offer or Product not found" });
     }
 
