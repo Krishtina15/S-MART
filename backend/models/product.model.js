@@ -33,7 +33,7 @@ const productSchema = new mongoose.Schema({
         default: ''
     },
     details: {
-        type: [detailSchema],  // Corrected from [det ailSchema]
+        type: [detailSchema],  
         default: []
     },
     images: {
@@ -60,6 +60,7 @@ const productSchema = new mongoose.Schema({
       },
 }, { timestamps: true });
 
+productSchema.index({productName: "text",description: "text"});
 const Product = mongoose.model('Product', productSchema);
 
 export default Product;
