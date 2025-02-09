@@ -11,7 +11,7 @@ router.post("/make-offer", protectRoute,createOffer);
 router.get("/offers/:productId", getOffersForProduct);
 
 //Route to get all the offres for the product
-router.get("/offers/user", protectRoute, getOffersByUser);
+router.get("/offers/user/:id", protectRoute, getOffersByUser);
 
 router.put("/offers/edit/:offerId", protectRoute, updateOffer);
 

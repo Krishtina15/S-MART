@@ -143,8 +143,12 @@ export const sellProduct = async (req, res) => {
 
 // Get all offers made by the authenticated user
 export const getOffersByUser = async (req, res) => {
+    const { id } = req.params;
   try {
-    const offers = await Offer.find({ buyerId: req.user._id });
+    const offers = await Offer.find({ buyerId: id })
+      
+      .populate("productId", "productName price"); // Populate product details
+
     if (offers.length === 0) {
       return res.status(404).json({ message: "No offers found" });
     }

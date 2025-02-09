@@ -1,17 +1,18 @@
-const User = require('../models/user.model');
+import User from "../models/user.model.js"; 
 
 // Get user profile
-exports.getUserProfile = async (req, res) => {
+export const getUserProfile = async (req, res) => {
+  const { id } = req.params;
   try {
-    const user = await User.findById(req.user.id).populate('orders').select('-password');
-    res.json(user);
+    const user = await User.findById(id);
+    res.status(200).json({ success: true, data: user });
   } catch (err) {
     res.status(500).send('Server Error');
   }
 };
 
 // Update profile
-exports.updateUserProfile = async (req, res) => {
+export const updateUserProfile = async (req, res) => {
   const { name, email } = req.body;
   
   try {
