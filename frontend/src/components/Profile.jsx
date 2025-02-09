@@ -28,7 +28,7 @@ const Profile = () => {
   const handleUpdate = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.put('http://localhost:8000/user', user);
+      const res = await axios.put('api/user', user);
       setUser(res.data);
     } catch (err) {
       console.error(err);

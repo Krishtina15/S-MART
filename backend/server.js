@@ -6,7 +6,7 @@ import cookieParser from "cookie-parser";
 import cors from "cors";
 
 import { connectDB } from "./config/db.js";
-
+import Product from "./models/product.model.js";
 import authRoutes from "./routes/auth.routes.js";
 import productRoutes from "./routes/product.route.js";
 import messageRoutes from "./routes/message.routes.js";
@@ -37,6 +37,7 @@ if (process.env.NODE_ENV === "production") {
 }
 
 app.listen(PORT, () => {
-	connectDB();
+	connectDB().then(() => {
+		Product.createIndexes(); })// Create indexes for the Product model
 	console.log("Server started at http://localhost:" + PORT);
 });

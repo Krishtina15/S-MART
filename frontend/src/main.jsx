@@ -14,6 +14,7 @@ import Signup from './components/Signup';
 import UpdateProduct from "./components/UpdateProduct";
 import ProtectedRoute from './components/ProtectedRoute'; // Import ProtectedRoute
 import ChatPage from './components/Chatpage.jsx';
+import SearchedProducts from './components/SearchedProducts.jsx';
 
 // Router setup
 const router = createBrowserRouter([
@@ -71,6 +72,12 @@ const router = createBrowserRouter([
           <ProtectedRoute>
             <ChatPage/>
           </ProtectedRoute>
+        )
+      },
+      {
+        path: 'search' ,
+        element:(
+          <SearchedProducts/>
         )
       }
     ],

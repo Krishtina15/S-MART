@@ -37,6 +37,47 @@ export const getProducts = async (req, res) => {
   }
 };
 
+export const searchProducts = async (req, res) => {
+  try {
+      const { query, page = 1, limit = 10 } = req.query;
+      if (!query) {
+          return res.status(400).json({ success: false, message: "Search query required" });
+      }
+
+      const skip = (page - 1) * parseInt(limit);
+
+      const results = await Product.aggregate([
+          { $match: { $text: { $search: query } } }, // Full-text search
+          {
+              $facet: {
+                  metadata: [{ $count: "totalResults" }], // Count total results
+                  products: [
+                      { $sort: { score: { $meta: "textScore" } } }, // Sort by relevance
+                      { $skip: skip },
+                      { $limit: parseInt(limit) },
+                      {
+                          $project: {            
+                              productName: 1,
+                              description: 1,
+                              price: 1,
+                              images: { $ifNull: [ "$images", [] ] }, // Ensure images is always an array, even if empty                           
+                              score: { $meta: "textScore" }
+                          }
+                      }
+                  ]
+              }
+          }
+      ]);
+
+      const totalResults = results[0].metadata.length ? results[0].metadata[0].totalResults : 0;
+      const products = results[0].products;
+
+      res.status(200).json({ success: true, data: products, totalResults, page, limit });
+  } catch (error) {
+      res.status(500).json({ success: false, message: "Server Error" });
+  }
+};
+
 export const getProductById = async (req, res) => {
     const { id } = req.params;
 
