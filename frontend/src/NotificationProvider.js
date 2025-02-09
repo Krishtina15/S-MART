@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, createContext, useContext } from "react";
 import socket from "./utils/socket";
 import { useAuthContext } from "./context/AuthContext";
 import notificationSound from "./assets/notification.mp3";
@@ -10,41 +10,57 @@ export const NotificationProvider = ({ children }) => {
   const [notifications, setNotifications] = useState([]);
   const { authUser } = useAuthContext();
 
+  // Fetch notifications from the backend
+  const fetchNotifications = async () => {
+    if (authUser) {
+      try {
+        const response = await axios.get(`http://localhost:8000/api/notifications/${authUser._id}`);
+        setNotifications(response.data.data);
+      } catch (error) {
+        console.error("Error fetching notifications:", error);
+      }
+    }
+  };
 
-    // Fetch notifications from the backend
-    const fetchNotifications = async () => {
-      if (authUser) {
-        try {
-          const response = await axios.get(`http://localhost:8000/api/notifications/${authUser._id}`);
-          setNotifications(response.data.data);
-        } catch (error) {
-          console.error("Error fetching notifications:", error);
-        }
-      }
-    };
-  
-    useEffect(() => {
-      if (authUser) {
-        // Fetch notifications when the component mounts
-        fetchNotifications();
-  
-        // Listen for new notifications via WebSocket
-        socket.on("newNotification", (newNotification) => {
+  useEffect(() => {
+    fetchNotifications();
+
+    if (authUser) {
+      // Join the user's room
+      socket.emit("joinRoom", authUser._id);
+
+      // Listen for new notifications
+      const handleNewNotification = (newNotification) => {
+        if (newNotification.userId === authUser._id) {
           setNotifications((prev) => [newNotification, ...prev]);
-        });
-      }
-  
+          const audio = new Audio(notificationSound);
+          audio.play();
+        }
+      };
+
+      socket.on("newNotification", handleNewNotification);
+
       // Cleanup on unmount
       return () => {
-        socket.off("newNotification");
+        socket.off("newNotification", handleNewNotification);
+        socket.emit("leaveRoom", authUser._id);
       };
-    }, [authUser]);
-  
-    return (
-      <NotificationContext.Provider value={{ notifications, setNotifications }}>
-        {children}
-      </NotificationContext.Provider>
-    );
+    } else {
+      // Clear notifications if the user logs out
+      setNotifications([]);
+    }
+  }, [authUser]);
+
+  // Function to clear all notifications
+  const clearNotifications = () => {
+    setNotifications([]);
   };
-  
-  export const useNotifications = () => useContext(NotificationContext);
+
+  return (
+    <NotificationContext.Provider value={{ notifications, setNotifications, clearNotifications }}>
+      {children}
+    </NotificationContext.Provider>
+  );
+};
+
+export const useNotifications = () => useContext(NotificationContext);

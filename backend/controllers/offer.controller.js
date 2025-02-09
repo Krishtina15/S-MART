@@ -36,10 +36,18 @@ export const createOffer = async (req, res) => {
 
     // Save the offer to the database
     await offer.save();
-    io.to(product.userId).emit("newOffer", {
-        message: "You have a new offer!",
-        offer,
-      });
+    // Create a notification for the seller
+    const notification = new Notification({
+      userId: product.userId, // Seller's ID
+      message: `You have a new offer for ${product.productName} from ${req.user.username}.`,
+      type: "newOffer",
+      metadata: { offerId: offer._id, productId: product._id },
+    });
+
+    await notification.save();
+
+    // Emit the notification to the seller in real time
+    io.to(product.userId).emit("newNotification", notification);
     res.status(201).json({ success: true, data: offer });
   } catch (error) {
     console.error("Error creating offer:", error.message);
@@ -99,7 +107,7 @@ export const acceptOffer = async (req, res) => {
   console.log(offerId);
   try {
     // Fetch the offer and check if it's valid
-    const offer = await Offer.findById(offerId);
+    const offer = await Offer.findById(offerId).populate("productId");
     if (!offer) {
       return res.status(404).json({ success: false, message: "Offer not found" });
     }
@@ -113,39 +121,36 @@ export const acceptOffer = async (req, res) => {
     // Update the offer status to accepted
     offer.status = "accepted";
     await offer.save();
+// Reject all other offers for the same product
+await Offer.updateMany(
+  { productId, _id: { $ne: offerId } },
+  { status: "rejected" }
+);
 
-    // Save a notification for the buyer
-    const buyerNotification = new Notification({
-      userId: offer.buyerId,
-      message: "Your offer has been accepted! Please provide your card details.",
-      type: "offerAccepted",
-      metadata: { offerId: offer._id, productId: offer.productId },
-    });
-    await buyerNotification.save();
+// Create a notification for the accepted buyer
+const acceptedNotification = new Notification({
+  userId: offer.buyerId,
+  message: `Your offer for ${offer.productId.productName} has been accepted! Please proceed with the payment.`,
+  type: "offerAccepted",
+  metadata: { offerId: offer._id, productId: productId },
+});
 
-    // Emit a socket event to the buyer
-    io.to(offer.buyerId).emit("newNotification", buyerNotification);
+await acceptedNotification.save();
+io.to(offer.buyerId).emit("newNotification", acceptedNotification);
 
-    await Offer.updateMany(
-      { productId, _id: { $ne: offerId } },
-      { status: "rejected" }
-    );
-  
-  
-    // Notify other buyers whose offers were rejected
-    const otherOffers = await Offer.find({ productId: offer.productId, _id: { $ne: offerId } });
-    for (const otherOffer of otherOffers) {
-      const rejectedNotification = new Notification({
-        userId: otherOffer.buyerId,
-        message: "Sorry, your offer has been rejected.",
-        type: "offerRejected",
-        metadata: { offerId: otherOffer._id, productId: otherOffer.productId },
-      });
-      await rejectedNotification.save();
+// Create notifications for rejected buyers
+const otherOffers = await Offer.find({ productId, _id: { $ne: offerId } });
+for (const otherOffer of otherOffers) {
+  const rejectedNotification = new Notification({
+    userId: otherOffer.buyerId,
+    message: `Sorry, your offer for ${otherOffer.productId.productName} has been rejected.`,
+    type: "offerRejected",
+    metadata: { offerId: otherOffer._id, productId: productId },
+  });
 
-      // Emit a socket event to the rejected buyers
-      io.to(otherOffer.buyerId).emit("newNotification", rejectedNotification);
-    }
+  await rejectedNotification.save();
+  io.to(otherOffer.buyerId).emit("newNotification", rejectedNotification);
+}
 
     res.status(200).json({ success: true, message: "Offer accepted", data: offer });
   } catch (error) {

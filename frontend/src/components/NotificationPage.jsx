@@ -7,7 +7,7 @@ const NotificationPage = () => {
 
   const markAsRead = async (notificationId) => {
     try {
-      await axios.put(`http://localhost:8000/api/notifications/${notificationId}/read`);
+      await axios.put(`http://localhost:8000/api/notifications/${notificationId}/read`, { withCredentials: true });
       setNotifications((prev) =>
         prev.map((n) => (n._id === notificationId ? { ...n, read: true } : n))
       );
@@ -29,9 +29,9 @@ const NotificationPage = () => {
     <div className="p-8 bg-brown-50 min-h-screen">
       <h1 className="text-2xl font-bold text-brown-800 mb-6">Notifications</h1>
       <div className="space-y-4">
-        {notifications.map((notification, index) => (
+        {notifications.map((notification) => (
           <div
-            key={index}
+            key={notification._id}
             className={`p-4 bg-white rounded-lg shadow-md text-brown-600 ${
               notification.read ? "opacity-75" : ""
             }`}
