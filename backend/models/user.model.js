@@ -26,14 +26,14 @@ const userSchema = new mongoose.Schema({
     required: [true, 'Password is required'],
     minlength: [6, 'Password must be at least 6 characters long']
   },
-  products:{
+  products:[{
     type:mongoose.Schema.Types.ObjectId,
     ref:'Product',
-  },
-  cart:{
+  }],
+  cart:[{
     type:mongoose.Schema.Types.ObjectId,
     ref:'Product',
-  }
+  }]
   
 }, { timestamps: true });
 

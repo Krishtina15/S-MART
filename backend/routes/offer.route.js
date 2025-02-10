@@ -1,6 +1,6 @@
 import express from "express";
 import protectRoute from "../middleware/protectRoute.js";
-import {createOffer, getOffersForProduct, getOffersByUser, sellProduct, acceptOffer,updateOffer,findOffer} from '../controllers/offer.controller.js';
+import {createOffer, getOffersForProduct, getOffersByUser, sellProduct, acceptOffer,updateOffer,findOffer,deleteOffer} from '../controllers/offer.controller.js';
 const router = express.Router();
 
 
@@ -20,5 +20,7 @@ router.post("/offers/accept/:offerId", protectRoute, acceptOffer);
 router.post("/sell-product", protectRoute, sellProduct);
 
 router.get("/offers/find/:productId", protectRoute, findOffer);
+
+router.delete("/offers/:offerId", deleteOffer);
 
 export default router;

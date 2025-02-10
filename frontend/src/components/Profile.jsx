@@ -18,6 +18,7 @@ const Profile = () => {
   const [editedUser, setEditedUser] = useState({ username: '', email: '' });
   const [products, setProducts] = useState([]);
   const navigate = useNavigate();
+  const [cart, setCart]=useState([]);
 
   useEffect(() => {
     if (!authUser?._id) return;
@@ -48,6 +49,29 @@ const Profile = () => {
 
     fetchProducts();
 }, []);
+  useEffect(() => {
+    const fetchCart = async () => {
+        try {
+            const res = await axios.get(`http://localhost:8000/api/cart/user/${authUser._id}/cart`); // Update with your API endpoint
+            console.log("fetched user cart",res.data )
+            setCart(res.data.data);
+        } catch (error) {
+            console.error('Error fetching cart:', error);
+        }
+    };
+    
+
+    fetchCart();
+  }, []);
+
+  const handleRemoveFromCart = async (cartId) => {
+    try {
+      await axios.delete(`http://localhost:8000/api/cart/${cartId}`);
+      setCart(cart.filter(item => item._id !== cartId));
+    } catch (error) {
+      console.error('Error removing from cart:', error);
+    }
+  };
 
 const handleImageClick = (productId) => {
     navigate(`/product-details/${productId}`); // Navigate to the product details page with the ID
@@ -221,31 +245,38 @@ const handleImageClick = (productId) => {
             )}
             
             {activeTab === 'cart' && (
-              <div className="overflow-x-auto">
-                {offers.length > 0 ? (
-                  <table className="min-w-full bg-white border border-gray-200 shadow-md rounded-lg">
-                    <thead>
-                      <tr className="bg-brown-700 text-white">
-                        <th className="py-3 px-6 text-left">Product</th>
-                        <th className="py-3 px-6 text-left">Offer Price</th>
-                        <th className="py-3 px-6 text-left">Offer Made Time</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {offers.map((offer) => (
-                        <tr key={offer._id} className="border-b border-gray-100 hover:bg-gray-50">
-                          <td className="py-3 px-6">{offer.productId.productName || "Unknown Product"}</td>
-                          <td className="py-3 px-6">${offer.price?.toFixed(2) || "N/A"}</td>
-                          <td className="py-3 px-6">{new Date(offer.createdAt).toLocaleString()}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                ) : (
-                  <p className="text-brown-600">No offers found.</p>
-                )}
-              </div>
-            )}
+  <div className="overflow-x-auto">
+    {cart.length > 0 ? (
+      <table className="min-w-full bg-white border border-gray-200 shadow-md rounded-lg">
+        <thead>
+          <tr className="bg-brown-700 text-white">
+            <th className="py-3 px-6 text-left">Product</th>
+            <th className="py-3 px-6 text-left">Price</th>
+            <th className="py-3 px-6 text-left">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {cart.map((item) => (
+            <tr key={item._id} className="border-b border-gray-100 hover:bg-gray-50">
+              <td className="py-3 px-6">{item.productId.productName || "Unknown Product"}</td>
+              <td className="py-3 px-6">${item.productId.price?.toFixed(2) || "N/A"}</td>
+              <td className="py-3 px-6">
+                <button
+                  onClick={() => handleRemoveFromCart(item._id)}
+                  className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
+                >
+                  Remove
+                </button>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    ) : (
+      <p className="text-brown-600">No items in cart.</p>
+    )}
+  </div>
+)}
             {activeTab === 'offers' && (
               <div className="overflow-x-auto">
                 {offers.length > 0 ? (
