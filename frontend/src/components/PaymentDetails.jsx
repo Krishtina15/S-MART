@@ -1,6 +1,4 @@
-import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
-import axios from "axios";
+import React, { useState } from "react";
 
 const PaymentDetails = () => {
   const [cardDetails, setCardDetails] = useState({
@@ -9,15 +7,10 @@ const PaymentDetails = () => {
     cvv: "",
   });
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    // Handle payment submission
-  };
-
   return (
-    <div className="p-8 bg-brown-50 min-h-screen">
+    <div className="p-8 bg-brown-50 min-h-screen flex flex-col items-center">
       <h1 className="text-2xl font-bold text-brown-800 mb-6">Payment Details</h1>
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form className="space-y-4 w-full max-w-md">
         <input
           type="text"
           placeholder="Card Number"
@@ -29,7 +22,7 @@ const PaymentDetails = () => {
         />
         <input
           type="text"
-          placeholder="Expiry Date"
+          placeholder="Expiry Date (MM/YY)"
           value={cardDetails.expiryDate}
           onChange={(e) =>
             setCardDetails({ ...cardDetails, expiryDate: e.target.value })
@@ -37,7 +30,7 @@ const PaymentDetails = () => {
           className="w-full p-2 border border-brown-600 rounded-lg"
         />
         <input
-          type="text"
+          type="password"
           placeholder="CVV"
           value={cardDetails.cvv}
           onChange={(e) =>
@@ -46,10 +39,10 @@ const PaymentDetails = () => {
           className="w-full p-2 border border-brown-600 rounded-lg"
         />
         <button
-          type="submit"
-          className="py-2 px-4 bg-brown-600 text-white rounded-lg hover:bg-brown-700"
+          type="button"
+          className="py-2 px-4 bg-brown-600 text-white rounded-lg hover:bg-brown-700 w-full"
         >
-          Submit
+          Proceed
         </button>
       </form>
     </div>

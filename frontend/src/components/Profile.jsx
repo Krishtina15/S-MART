@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useAuthContext } from "../context/AuthContext";
-
+import { useNavigate } from 'react-router-dom';
 const Profile = () => {
   const { authUser } = useAuthContext();
   const [offers, setOffers] = useState([]);
@@ -16,6 +16,8 @@ const Profile = () => {
     createdAt: '',
   });
   const [editedUser, setEditedUser] = useState({ username: '', email: '' });
+  const [products, setProducts] = useState([]);
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (!authUser?._id) return;
@@ -31,6 +33,25 @@ const Profile = () => {
     };
     fetchProfile();
   }, [authUser]);
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+        try {
+            const res = await axios.get(`http://localhost:8000/api/products/user/${authUser._id}/products`); // Update with your API endpoint
+            console.log("fetched user products",res.data )
+            setProducts(res.data.data);
+        } catch (error) {
+            console.error('Error fetching products:', error);
+        }
+    };
+    
+
+    fetchProducts();
+}, []);
+
+const handleImageClick = (productId) => {
+    navigate(`/product-details/${productId}`); // Navigate to the product details page with the ID
+};
 
   const handleUpdate = async (e) => {
     e.preventDefault();
@@ -54,7 +75,6 @@ const Profile = () => {
       console.error("Error fetching offers:", err);
     }
   };
-
   useEffect(() => {
     
       fetchOffers();
@@ -79,7 +99,7 @@ const Profile = () => {
 
         {/* Navigation */}
         <div className="flex justify-center mb-8 border-b border-brown-100">
-          {['profile', 'orders', 'settings'].map((tab) => (
+          {['profile', 'products','cart', 'settings'].map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
@@ -172,7 +192,35 @@ const Profile = () => {
               </div>
             )}
 
-            {activeTab === 'orders' && (
+            {activeTab === 'products' && (
+              <div className="overflow-x-auto">
+                {products.length > 0 ? (
+                   <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                   {products.map((product) => (
+                       <div
+                           key={product._id} // Use product._id as the unique key
+                           className="shadow-lg transition-transform transform hover:scale-105 bg-white rounded-lg overflow-hidden"
+                       >
+                           <img
+                               src={`http://localhost:8000/${product.images[0]}`} // Display the first image
+                               alt={product.productName}
+                               className="w-full h-48 object-cover cursor-pointer"
+                               onClick={() => handleImageClick(product._id)} // Pass the product ID to the handler
+                           />
+                           <div className="p-4">
+                               <h2 className="text-lg font-semibold text-amber-900">{product.productName}</h2>
+                               <p className="text-xl font-bold text-amber-800">${product.price}</p>
+                           </div>
+                       </div>
+                   ))}
+               </div>
+                ) : (
+                  <p className="text-brown-600">No offers found.</p>
+                )}
+              </div>
+            )}
+            
+            {activeTab === 'cart' && (
               <div className="overflow-x-auto">
                 {offers.length > 0 ? (
                   <table className="min-w-full bg-white border border-gray-200 shadow-md rounded-lg">
