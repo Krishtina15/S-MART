@@ -197,13 +197,16 @@ const ProductDetails = () => {
     return (
       <div className="relative w-10 h-10 flex-shrink-0">
         {owner?.profilePicture && !imageError ? (
-          <img
+          <Link to="/profile"><img
             src={`http://localhost:8000/${owner.profilePicture}`}
             alt={owner.username || "User Profile"}
             className="w-full h-full rounded-full object-cover"
             onError={() => setImageError(true)}
+          
             loading="lazy"
+            
           />
+          </Link>
         ) : (
           <div className="w-full h-full rounded-full bg-brown-100 flex items-center justify-center">
             <span className="text-brown-600 text-lg font-semibold">
@@ -272,7 +275,6 @@ const ProductDetails = () => {
           </div>
 
           <div className="bg-white p-6 md:p-8 rounded-lg shadow-lg flex flex-col space-y-6">
-            {/* Enhanced Profile Section */}
             <div className="flex items-center space-x-4 pb-4 border-b border-brown-100">
               <ProfileImage owner={owner} />
               <div className="flex-1 min-w-0">
