@@ -41,7 +41,7 @@ const NotificationPage = () => {
               <button
                 onClick={() => {
                   // Redirect to payment details page
-                  window.location.href = `/payment/${notification.metadata.offerId}`;
+                  window.location.href = `\payment`;
                 }}
                 className="mt-2 inline-block py-2 px-4 bg-green-600 text-white rounded-lg hover:bg-green-700"
               >
