@@ -37,6 +37,7 @@ export const getProducts = async (req, res) => {
   }
 };
 
+
 export const searchProducts = async (req, res) => {
   try {
       const { query, page = 1, limit = 10 } = req.query;
@@ -109,13 +110,13 @@ export const getUserProducts = async (req, res) => {
   
 	try {
 	  // Find user and populate products with detailed product info
-	  const user = await User.findById(userId).populate('products');
+	  const products = await Product.find({userId});
 	  
-	  if (!user) {
+	  if (!products) {
 		return res.status(404).json({ success: false, message: "User not found" });
 	  }
   
-	  res.status(200).json({ success: true, data: user.products });
+	  res.status(200).json({ success: true,data: products });
 	} catch (error) {
 	  console.error("Error in fetching user products:", error.message);
 	  res.status(500).json({ success: false, message: "Server Error" });
