@@ -123,7 +123,7 @@ const handleImageClick = (productId) => {
 
         {/* Navigation */}
         <div className="flex justify-center mb-8 border-b border-brown-100">
-          {['profile', 'products','cart','offer' ,'settings'].map((tab) => (
+          {['profile', 'products','cart','offers' ,'settings'].map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
@@ -245,38 +245,38 @@ const handleImageClick = (productId) => {
             )}
             
             {activeTab === 'cart' && (
-  <div className="overflow-x-auto">
-    {cart.length > 0 ? (
-      <table className="min-w-full bg-white border border-gray-200 shadow-md rounded-lg">
-        <thead>
-          <tr className="bg-brown-700 text-white">
-            <th className="py-3 px-6 text-left">Product</th>
-            <th className="py-3 px-6 text-left">Price</th>
-            <th className="py-3 px-6 text-left">Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {cart.map((item) => (
-            <tr key={item._id} className="border-b border-gray-100 hover:bg-gray-50">
-              <td className="py-3 px-6">{item.productId.productName || "Unknown Product"}</td>
-              <td className="py-3 px-6">${item.productId.price?.toFixed(2) || "N/A"}</td>
-              <td className="py-3 px-6">
-                <button
-                  onClick={() => handleRemoveFromCart(item._id)}
-                  className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
-                >
-                  Remove
-                </button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    ) : (
-      <p className="text-brown-600">No items in cart.</p>
-    )}
-  </div>
-)}
+            <div className="overflow-x-auto">
+              {cart.length > 0 ? (
+                <table className="min-w-full bg-white border border-gray-200 shadow-md rounded-lg">
+                  <thead>
+                    <tr className="bg-brown-700 text-white">
+                      <th className="py-3 px-6 text-left">Product</th>
+                      <th className="py-3 px-6 text-left">Price</th>
+                      <th className="py-3 px-6 text-left">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {cart.map((item) => (
+                      <tr key={item._id} className="border-b border-gray-100 hover:bg-gray-50">
+                        <td className="py-3 px-6">{item.productId.productName || "Unknown Product"}</td>
+                        <td className="py-3 px-6">${item.productId.price?.toFixed(2) || "N/A"}</td>
+                        <td className="py-3 px-6">
+                          <button
+                            onClick={() => handleRemoveFromCart(item._id)}
+                            className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
+                          >
+                            Remove
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              ) : (
+                <p className="text-brown-600">No items in cart.</p>
+              )}
+            </div>
+          )}
             {activeTab === 'offers' && (
               <div className="overflow-x-auto">
                 {offers.length > 0 ? (
