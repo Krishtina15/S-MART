@@ -29,7 +29,12 @@ const userSchema = new mongoose.Schema({
   products:{
     type:mongoose.Schema.Types.ObjectId,
     ref:'Product',
+  },
+  cart:{
+    type:mongoose.Schema.Types.ObjectId,
+    ref:'Product',
   }
+  
 }, { timestamps: true });
 
 const User = mongoose.model('User', userSchema);
