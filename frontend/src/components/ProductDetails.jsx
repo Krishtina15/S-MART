@@ -9,6 +9,8 @@ const ProductDetails = () => {
   const navigate = useNavigate();
   const [product, setProduct] = useState(null);
   const [offers, setOffers] = useState([]);
+  const [userId, setUserId] = useState(null);
+  const [owner, setOwner]=useState(null)
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -16,34 +18,56 @@ const ProductDetails = () => {
   const [showOfferBox, setShowOfferBox] = useState(false);
   const { authUser } = useAuthContext();
   const { addNotification } = useNotifications();
+  const [profileImageError, setProfileImageError] = useState(false);
 
-  useEffect(() => {
-    const fetchProduct = async () => {
-      try {
-        const response = await axios.get(`http://localhost:8000/api/products/${id}`);
-        if (response.data && response.data.data) {
-          setProduct(response.data.data);
-          setPrice(response.data.data.price);
+  
+  const fetchProduct = async () => {
+    try {
+      const response = await axios.get(`http://localhost:8000/api/products/${id}`);
+      if (response.data && response.data.data) {
+        let productData = response.data.data;
+      
+        if (productData.userId) { // Check if userId exists *before* trying to populate or use it
+          if (typeof productData.userId === 'string') {
+            const productWithUser = await Product.findById(productData._id).populate('userId');
+            productData = productWithUser;
+          }
+      
+          setProduct(productData);
+          setPrice(productData.price);
+          setUserId(productData.userId._id);
+          setOwner(productData.userId);
         } else {
-          setError("Product not found");
-        }
-      } catch (error) {
-        setError("Unexpected error occurred");
-      } finally {
-        setLoading(false);
-      }
-    };
+          console.warn("Product has no userId:", productData._id); // Log a warning
+          setOwner({ username: "Unknown" }); // Set a default owner or handle it differently
+          setProduct(productData);
+          setPrice(productData.price);
+         }
+       }
+     }
+     catch (error) {
+      setError("Unexpected error occurred");
+      console.error("Error fetching product:", error); // Log the full error
+    } finally {
+      setLoading(false);
+    }
+   } ;
 
-    const fetchOffers = async () => {
-      try {
-        const response = await axios.get(`http://localhost:8000/api/offers/${id}`);
-        setOffers(response.data.data);
-      } catch (error) {
-        console.error("Error fetching offers:", error);
-      }
-    };
 
-    const incrementViews = async () => {
+    
+  const fetchOffers = async () => {
+    try {
+      const response = await axios.get(`http://localhost:8000/api/offers/${id}`);
+      setOffers(response.data.data);
+    } catch (error) {
+      console.error("Error fetching offers:", error);
+    }
+  };
+  
+
+
+    useEffect(() =>{
+      const incrementViews = async () => {
         try {
           await axios.put(`http://localhost:8000/api/products/${id}/increment-views`);
         } catch (error) {
@@ -53,8 +77,10 @@ const ProductDetails = () => {
     incrementViews(); 
     fetchProduct();
     fetchOffers();
-    
-  }, [id]);
+  
+     }, [id]);
+
+
   useEffect(() => {
     if (authUser) {
       // Listen for new offer notifications
@@ -165,6 +191,30 @@ const ProductDetails = () => {
     }
   };
 
+  const ProfileImage = ({ owner }) => {
+    const [imageError, setImageError] = useState(false);
+    
+    return (
+      <div className="relative w-10 h-10 flex-shrink-0">
+        {owner?.profilePicture && !imageError ? (
+          <img
+            src={`http://localhost:8000/${owner.profilePicture}`}
+            alt={owner.username || "User Profile"}
+            className="w-full h-full rounded-full object-cover"
+            onError={() => setImageError(true)}
+            loading="lazy"
+          />
+        ) : (
+          <div className="w-full h-full rounded-full bg-brown-100 flex items-center justify-center">
+            <span className="text-brown-600 text-lg font-semibold">
+              {owner?.username ? owner.username[0].toUpperCase() : "U"}
+            </span>
+          </div>
+        )}
+      </div>
+    );
+  };
+
   const handleSellOffer = async (offerId) => {
    // console.log(offerId);
     try {
@@ -221,11 +271,32 @@ const ProductDetails = () => {
             </div>
           </div>
 
-          {/* Price and Actions */}
-          <div className="bg-white p-8 rounded-lg shadow-lg flex flex-col space-y-6">
-            <h1 className="text-3xl font-bold text-brown-800">{product.productName}</h1>
-            <div className="text-2xl font-semibold text-brown-600">${product.price}</div>
-
+          <div className="bg-white p-6 md:p-8 rounded-lg shadow-lg flex flex-col space-y-6">
+            {/* Enhanced Profile Section */}
+            <div className="flex items-center space-x-4 pb-4 border-b border-brown-100">
+              <ProfileImage owner={owner} />
+              <div className="flex-1 min-w-0">
+                {owner?.username ? (
+                  <h1 className="text-xl md:text-2xl font-bold text-brown-800 truncate">
+                    {owner.username}
+                  </h1>
+                ) : (
+                  <div className="h-8 bg-brown-100 rounded-md animate-pulse w-1/2" />
+                )}
+              
+              </div>
+            </div>
+            <div className="space-y-2">
+              <h2 className="text-2xl md:text-3xl font-bold text-brown-800 break-words">
+                {product?.productName}
+              </h2>
+              <div className="flex items-baseline space-x-2">
+                <span className="text-2xl font-semibold text-brown-600">
+                  ${product.price.toLocaleString()}
+                </span>
+                <span className="text-sm text-brown-400">USD</span>
+              </div>
+            </div>
             {/* Action Buttons */}
             <div className="grid grid-cols-1 gap-4">
               {/* Seller view */}
@@ -274,13 +345,7 @@ const ProductDetails = () => {
                     // If the user has already made an offer, show "Update Offer"
                     <div className="space-y-4">
                       <button
-                        onClick={()  => {
-                          const userOffer = offers.find((offer) => offer.buyerId._id === authUser._id);
-                          if (userOffer) {
-                            setPrice(userOffer.price); // Set the price to the user's previous offer
-                          }
-                          setShowOfferBox(true);
-                        }}
+                        onClick={() => setShowOfferBox(true)}
                         className="w-full py-3 bg-brown-600 text-white rounded-lg hover:bg-brown-700 transition"
                       >
                         Update Offer
@@ -371,12 +436,7 @@ const ProductDetails = () => {
           {/* Product Details Table */}
           <div className="overflow-x-auto mb-8">
             <table className="w-full table-auto border-collapse">
-              <thead>
-                <tr>
-                  <th className="text-left p-3 bg-brown-100 text-brown-800">Key</th>
-                  <th className="text-left p-3 bg-brown-100 text-brown-800">Value</th>
-                </tr>
-              </thead>
+           
               <tbody>
                 {product.details.map((detail, index) => (
                   <tr key={index} className="border-b">
