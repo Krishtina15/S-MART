@@ -52,7 +52,7 @@ const Profile = () => {
   useEffect(() => {
     const fetchCart = async () => {
         try {
-            const res = await axios.get(`http://localhost:8000/api/cart/user/${authUser._id}/cart`); // Update with your API endpoint
+            const res = await axios.get(`http://localhost:8000/api/carts/user/${authUser._id}/cart`); // Update with your API endpoint
             console.log("fetched user cart",res.data )
             setCart(res.data.data);
         } catch (error) {
@@ -66,7 +66,7 @@ const Profile = () => {
 
   const handleRemoveFromCart = async (cartId) => {
     try {
-      await axios.delete(`http://localhost:8000/api/cart/${cartId}`);
+      await axios.delete(`http://localhost:8000/api/carts/${cartId}`);
       setCart(cart.filter(item => item._id !== cartId));
     } catch (error) {
       console.error('Error removing from cart:', error);

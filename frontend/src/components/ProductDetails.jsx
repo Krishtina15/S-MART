@@ -265,15 +265,15 @@ const ProductDetails = () => {
       console.log(error);
     }
   };
-  const handleAddToCart = async (productId) => {
+  const handleAddToCart = async () => {
     try {
-      const res = await axios.post(`http://localhost:8000/api/cart`, {
-        productId,
-        userId: authUser._id
+      const res = await axios.post(`http://localhost:8000/api/carts`, {
+        userId: authUser._id,productId: id
       });
       console.log("Product added to cart:", res.data);
-      setCart([...cart, res.data.data]);
+      alert("product added to cart");
     } catch (error) {
+      alert("error adding product to cart");
       console.error('Error adding to cart:', error);
     }
   };
@@ -551,7 +551,7 @@ const ProductDetails = () => {
                       )}
 
                       <button
-                          onClick={handleAddToCart(id)}
+                          onClick={handleAddToCart}
                           className="w-full py-3 bg-brown-600 text-white rounded-lg hover:bg-brown-700 transition"
                         >
                           Add to Cart

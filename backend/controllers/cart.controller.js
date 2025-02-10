@@ -5,16 +5,13 @@ import Cart from '../models/cart.model.js';
 
 export const createCart = async (req, res) => {
 	try {
-	  const { productId, userId } = req.body;
+	  const {  userId,productId } = req.body;
   
 	  if (!productId || !userId  === 0) {
 		return res.status(400).json({ success: false, message: "Please provide all fields including images" });
 	  }
   
-	  let parsedDetails = [];
-	  if (details) {
-		parsedDetails = JSON.parse(details);
-	  }
+	  
   
 	  // Create the new product
 	  const newCart= new Cart({
@@ -74,7 +71,7 @@ export const createCart = async (req, res) => {
   
 	try {
 	  // Find user and populate products with detailed product info
-	  const cart = await Cart.find({userId});
+	  const cart = await Cart.find({userId}).populate("productId", "productName price");;
 	  
 	  if (!cart) {
 		return res.status(404).json({ success: false, message: "User not found" });
