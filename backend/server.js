@@ -10,7 +10,8 @@ import authRoutes from "./routes/auth.routes.js";
 import productRoutes from "./routes/product.route.js";
 import offerRoutes from "./routes/offer.route.js";
 import profileRoutes from "./routes/profile.route.js";
-import notificationRoutes from "./routes/notification.route.js"
+import notificationRoutes from "./routes/notification.route.js";
+import cartRoutes from "./routes/cart.routes.js";
 dotenv.config();
 
 const app = express();
@@ -25,6 +26,7 @@ app.use('/uploads', express.static('uploads'));
 
 app.use("/api/auth", authRoutes);
 app.use("/api/products", productRoutes);
+app.use("/api/carts", cartRoutes);
 app.use("/api",offerRoutes);
 app.use("/api/user",profileRoutes);
 app.use("/api", notificationRoutes);

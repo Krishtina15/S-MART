@@ -117,7 +117,7 @@ const router = createBrowserRouter([
   },
 ]);
 
-// Render the app
+// Render the app main page
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <AuthContextProvider>

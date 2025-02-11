@@ -112,6 +112,7 @@ export const acceptOffer = async (req, res) => {
       return res.status(404).json({ success: false, message: "Offer not found" });
     }
     const productId= offer.productId;
+    const buyerId = offer.buyerId;
 
     // Ensure only the seller can accept the offer
     if (offer.sellerId.toString() !== req.user._id.toString()) {
@@ -121,6 +122,13 @@ export const acceptOffer = async (req, res) => {
     // Update the offer status to accepted
     offer.status = "accepted";
     await offer.save();
+
+    await Product.findByIdAndUpdate(
+      productId,
+      { $push: { buyerId: buyerId } }, // Push the new product's ID to the user's products array
+      { new: true }
+      );
+    
 // Reject all other offers for the same product
 await Offer.updateMany(
   { productId, _id: { $ne: offerId } },
@@ -137,6 +145,12 @@ const acceptedNotification = new Notification({
 
 await acceptedNotification.save();
 io.to(offer.buyerId).emit("newNotification", acceptedNotification);
+
+await Product.findByIdAndUpdate(
+  productId,
+  { $push: { buyerId: buyerId } }, // Push the new product's ID to the user's products array
+  { new: true }
+  );
 
 // Create notifications for rejected buyers
 const otherOffers = await Offer.find({ productId, _id: { $ne: offerId } });
@@ -229,4 +243,20 @@ export const findOffer = async (req,res)=>{
         console.log(error)
         //res.status(500).json({ success: false, message: "Server error", error });
     }
-}
+};
+
+
+export const deleteOffer = async (req, res) => {
+  const { offerId } = req.params;
+
+  try {
+    const offer = await Offer.findByIdAndDelete(offerId);
+    if (!offer) {
+      return res.status(404).json({ success: false, message: "Offer not found" });
+    }
+    res.status(200).json({ success: true, message: "Offer deleted" });
+  } catch (error) {
+    console.error("Error deleting offer:", error.message);
+    res.status(500).json({ success: false, message: "Server Error" });
+  }
+};

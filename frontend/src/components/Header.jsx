@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import { useAuthContext } from "../context/AuthContext";
-import { FaSearch, FaUser, FaSignInAlt, FaSignOutAlt, FaHome, FaStore, FaBars, FaTimes } from "react-icons/fa";
+import { FaSearch, FaUser, FaSignInAlt, FaSignOutAlt, FaHome, FaStore, FaBars, FaTimes, FaBell } from "react-icons/fa";
 import martImage from '../assets/Mart.png';
 
 const Header = () => {
@@ -79,6 +79,12 @@ const Header = () => {
                       <NavLink to="/profile" className="px-3 py-2 rounded-md text-sm font-medium text-brown-100 hover:bg-brown-700 transition-colors duration-200 flex items-center space-x-2">
                         <FaUser />
                         <span>Profile</span>
+                      </NavLink>
+                    </li>
+                    <li>
+                      <NavLink to="/notification" className="px-3 py-2 rounded-md text-sm font-medium text-brown-100 hover:bg-brown-700 transition-colors duration-200 flex items-center space-x-2">
+                        <FaBell />
+                        <span>Notification</span>
                       </NavLink>
                     </li>
                     <li>

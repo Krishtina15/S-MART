@@ -7,7 +7,7 @@ import socket from "../utils/socket";
 const ProductDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const [product, setProduct] = useState(null);
+  const [product, setProduct] = useState([]);
   const [offers, setOffers] = useState([]);
   const [userId, setUserId] = useState(null);
   const [owner, setOwner]=useState(null)
@@ -19,8 +19,27 @@ const ProductDetails = () => {
   const { authUser } = useAuthContext();
   const { addNotification } = useNotifications();
   const [profileImageError, setProfileImageError] = useState(false);
-
+  const [message, setMessage] = useState(null);
+  const [messageType, setMessageType] = useState("");
+  const [refreshKey, setRefreshKey] = useState(0);
   
+
+  // Message Component
+const Message = ({ message, type }) => {
+  if (!message) return null;
+
+  const messageStyles = {
+    success: "bg-green-100 border-green-400 text-green-700",
+    error: "bg-red-100 border-red-400 text-red-700",
+  };
+
+  return (
+    <div className={`${messageStyles[type]} border px-4 py-3 rounded relative mb-4`} role="alert">
+      <span className="block sm:inline">{message}</span>
+    </div>
+  )
+}
+
   const fetchProduct = async () => {
     try {
       const response = await axios.get(`http://localhost:8000/api/products/${id}`);
@@ -59,6 +78,7 @@ const ProductDetails = () => {
     try {
       const response = await axios.get(`http://localhost:8000/api/offers/${id}`);
       setOffers(response.data.data);
+
     } catch (error) {
       console.error("Error fetching offers:", error);
     }
@@ -73,12 +93,13 @@ const ProductDetails = () => {
         } catch (error) {
           console.error("Error incrementing views:", error);
         }
+
       };
     incrementViews(); 
     fetchProduct();
-    fetchOffers();
+   fetchOffers();
   
-     }, [id]);
+     }, [id, refreshKey]);
 
 
   useEffect(() => {
@@ -125,6 +146,23 @@ const ProductDetails = () => {
   const handlePriceChange = (change) => {
     setPrice((prevPrice) => Math.max(prevPrice + change, product.price));
   };
+  
+  const handleRemoveProduct = async () => {
+    if (window.confirm("Are you sure you want to delete this product?")) {
+      try {
+        await axios.delete(`http://localhost:8000/api/products/${id}`, {
+          withCredentials: true,
+        });
+        setMessage("Product deleted successfully! Redirecting...");
+        setMessageType("success");
+        navigate("/"); // Redirect to the home page after deletion
+      } catch (error) {
+        console.error("Error deleting product:", error);
+        setMessage("An error occurred. Please try again.");
+        setMessageType("error");
+      }
+    }
+  };
 
   const handleMakeOffer = async () => {
     try {
@@ -133,15 +171,44 @@ const ProductDetails = () => {
         { productId: id, price },
         { withCredentials: true }
       );
-      alert("Offer made successfully!");
+      setMessage("Offer made successfully!");
+      setMessageType("success");
+      setRefreshKey(prevKey => prevKey + 1);
       setShowOfferBox(false);
 
       } catch (error) {
         console.log(error)
-      alert("Error making offer");
+        setMessage("An error occurred. Please try again.");
+        setMessageType("error");
     }
   };
-
+  const handleRemoveOffer = async () => {
+    if (window.confirm("Are you sure you want to remove your offer?")) {
+      try {
+        const offerId = await getOfferId(); // Get the offer ID
+        if (!offerId) {
+          alert("Offer not found");
+          return;
+        }
+  
+        await axios.delete(`http://localhost:8000/api/offers/${offerId}`, {
+          withCredentials: true,
+        });
+        setMessage("Offer removed successfully!");
+        setMessageType("success");
+        
+        setOffers((prevOffers) =>
+          prevOffers.filter((offer) => offer._id !== offerId)
+        ); // Update the offers state
+        setRefreshKey(prevKey => prevKey + 1);
+        setShowOfferBox(false); // Hide the offer box
+      } catch (error) {
+        console.error("Error removing offer:", error);
+        setMessage("An error occurred. Please try again.");
+        setMessageType("error");
+      }
+    }
+  };
   const getOfferId = async () => {
     try {
         const response = await axios.get(`http://localhost:8000/api/offers/find/${id}`,{ withCredentials: true });
@@ -176,18 +243,22 @@ const ProductDetails = () => {
         { price},
         { withCredentials: true }
       );
-      alert("Offer updated successfully!");
+      setMessage("Offer updated successfully!");
+      setMessageType("success");
       
        // Update the offers state with the updated offer
        setOffers((prevOffers) =>
         prevOffers.map((offer) =>
           offer._id === offerId ? { ...offer, price: response.data.data.price } : offer
         )
+        
       );
-      
+      setRefreshKey(prevKey => prevKey + 1);
+      setShowOfferBox(false);
     } catch (error) {
       console.log(error);
-      alert("Error updating offer");
+      setMessage("An error occurred. Please try again.");
+      setMessageType("error");
     }
   };
 
@@ -222,10 +293,28 @@ const ProductDetails = () => {
    // console.log(offerId);
     try {
       await axios.post(`http://localhost:8000/api/offers/accept/${offerId}`, { productId: id, offerId },{ withCredentials: true });
-      alert("Accepted successfully!");
+      setMessage("Accepted successfully!");
+      setMessageType("success");
+      setRefreshKey(prevKey => prevKey + 1);
     } catch (error) {
-      alert("Error selling product");
+      setMessage("An error occurred. Please try again.");
+      setMessageType("error");
       console.log(error);
+    }
+  };
+  const handleAddToCart = async () => {
+    try {
+      const res = await axios.post(`http://localhost:8000/api/carts`, {
+        userId: authUser._id,productId: id
+      });
+      console.log("Product added to cart:", res.data);
+      setMessage("product added to cart");
+      setMessageType("success");
+      setRefreshKey(prevKey => prevKey + 1);
+    } catch (error) {
+      setMessage("An error occurred. Please try again.");
+      setMessageType("error");
+      console.error('Error adding to cart:', error);
     }
   };
 
@@ -243,6 +332,9 @@ const ProductDetails = () => {
 
   return (
     <main className="p-8 bg-brown-50 min-h-screen font-sans">
+      
+      <Message message={message} type={messageType} />
+      
       <div className="max-w-6xl mx-auto">
         {/* Grid layout for image and details */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start mb-16">
@@ -301,8 +393,70 @@ const ProductDetails = () => {
             </div>
             {/* Action Buttons */}
             <div className="grid grid-cols-1 gap-4">
+              {/*when an offer is accepted*/}
+              {/*when an offer is accepted*/}
+              {product.buyerId && userId !==0 ?(
+                <>
+                {/*seller view*/}
+                {authUser && authUser._id === userId && (
+                  <div>
+                  <h2 className="text-xl font-semibold text-brown-800">Accepted Offer</h2>
+                  <table className="w-full table-auto border-collapse">
+                    <thead>
+                      <tr>
+                        <th className="text-left p-3 bg-brown-100 text-brown-800">Buyer</th>
+                        <th className="text-left p-3 bg-brown-100 text-brown-800">Price</th>
+                        <th className="text-left p-3 bg-brown-100 text-brown-800">Status</th>
+                        <th className="text-left p-3 bg-brown-100 text-brown-800">Action</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {offers
+                        .filter((offer) => offer.status === "accepted")
+                        .map((offer) => (
+                          <tr key={offer._id}>
+                            <td className="p-3 text-brown-600">{offer.buyerId.username}</td>
+                            <td className="p-3 text-brown-600">${offer.price}</td>
+                            <td className="p-3 text-brown-600">Accepted</td>
+                            <td className="p-3">
+                              <button
+                                onClick={() => handleMarkAsSold(product._id)}
+                                className="py-2 px-4 bg-green-600 text-white rounded-md hover:bg-green-700"
+                              >
+                                Mark as Sold
+                              </button>
+                            </td>
+                          </tr>
+                        ))}
+                    </tbody>
+                  </table>
+                </div>
+                )}
+              {/* Buyer view */}
+            {authUser &&
+              authUser._id !== userId &&
+              offers.some(
+                (offer) =>
+                  offer.buyerId._id === authUser._id && offer.status === "accepted"
+              ) && (
+                <div className="space-y-4">
+                  <p className="text-lg text-green-600">
+                    Your offer has been accepted! Please proceed with the payment.
+                  </p>
+                  <button
+                    onClick={() => navigate(`/payment`)}
+                    className="w-full py-3 bg-brown-600 text-white rounded-lg hover:bg-brown-700 transition"
+                  >
+                    Proceed to Payment
+                  </button>
+                </div>
+              )}
+              </>
+              ) : (
+                <>
+              {/*when there is no offer acepted*/}
               {/* Seller view */}
-              {authUser && authUser._id === product.userId && (
+              {authUser && authUser._id === userId && (
                 <div>
                   <Link
                     to={`/update-product/${product._id}`}
@@ -310,6 +464,13 @@ const ProductDetails = () => {
                   >
                     Update Product
                   </Link>
+
+                  <button
+                     onClick={handleRemoveProduct}
+                     className="w-full py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition text-center block mb-4"
+                  >
+                     Remove Product
+                  </button>
 
                   <h2 className="text-xl font-semibold text-brown-800">Offers</h2>
                   <table className="w-full table-auto border-collapse">
@@ -338,16 +499,23 @@ const ProductDetails = () => {
                     </tbody>
                   </table>
                 </div>
-              )}
+              ) }
 
               {/* Buyer view */}
-              {authUser && authUser._id !== product.userId && (
+              {authUser && authUser._id !== userId && (
                 <>
                   {offers.some((offer) => offer.buyerId._id === authUser._id) ? (
                     // If the user has already made an offer, show "Update Offer"
                     <div className="space-y-4">
                       <button
-                        onClick={() => setShowOfferBox(true)}
+                        onClick={() => {
+                          setShowOfferBox(true);
+                          // Set the price to the user's existing offer when opening the box
+                          const userOffer = offers.find((offer) => offer.buyerId._id === authUser._id);
+                          if (userOffer) {
+                            setPrice(userOffer.price);
+                          }
+                        }}
                         className="w-full py-3 bg-brown-600 text-white rounded-lg hover:bg-brown-700 transition"
                       >
                         Update Offer
@@ -382,7 +550,14 @@ const ProductDetails = () => {
                           Confirm Update
                         </button>
                       )}
+                        <button
+                         onClick={handleRemoveOffer}
+                         className="w-full py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition"
+                        >
+                        Remove Offer
+                        </button>
                     </div>
+                    
                   ) : (
                     // If the user hasn't made an offer, show "Make Offer"
                     <>
@@ -414,6 +589,8 @@ const ProductDetails = () => {
                         >
                           Make Offer
                         </button>
+
+                        
                       )}
                       {showOfferBox && (
                         <button
@@ -423,10 +600,20 @@ const ProductDetails = () => {
                           Confirm Offer
                         </button>
                       )}
+
+                      <button
+                          onClick={handleAddToCart}
+                          className="w-full py-3 bg-brown-600 text-white rounded-lg hover:bg-brown-700 transition"
+                        >
+                          Add to Cart
+                        </button>
                     </>
                   )}
                 </>
               )}
+              </>
+              )}
+            
             </div>
           </div>
         </div>

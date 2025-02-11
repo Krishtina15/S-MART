@@ -7,7 +7,7 @@ const ProtectedRoute = ({ children }) => {
   
   useEffect(() => {
     if (!authUser) {
-      alert("Please log in to add a product.");
+      alert("Please log in to use the feature.");
       setTimeout(() => {
         navigate('/login'); // Redirect to login page after a delay
       }, 500); // 2-second delay before redirecting
