@@ -318,6 +318,8 @@ const Message = ({ message, type }) => {
     }
   };
 
+  
+
   if (loading) {
     return <p className="text-center text-lg text-brown-600">Loading...</p>;
   }
