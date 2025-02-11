@@ -58,6 +58,7 @@ const productSchema = new mongoose.Schema({
         ref: "User",
         default: null,
       },
+  
 }, { timestamps: true });
 
 productSchema.index({productName: "text",description: "text"});

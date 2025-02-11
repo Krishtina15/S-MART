@@ -65,7 +65,6 @@ const Dashboard = () => {
           </div>
           {[
             { icon: <Users size={20} />, label: 'Summary' },
-            { icon: <MessageSquare size={20} />, label: 'Messages' },
             { icon: <Package size={20} />, label: 'Products' },
             { icon: <ShoppingCart size={20} />, label: 'Orders' },
             { icon: <Settings size={20} />, label: 'Settings' },

@@ -18,7 +18,7 @@ import PaymentDetails from "./components/PaymentDetails.jsx";
 import NotificationPage from './components/NotificationPage.jsx';
 import { NotificationProvider } from "./context/NotificationContext";
 import SearchedProducts from './components/SearchedProducts.jsx';
-
+import Dashboard from './components/Dashboard.jsx';
 // Router setup
 const router = createBrowserRouter([
   {
@@ -107,7 +107,12 @@ const router = createBrowserRouter([
         element:(
           <SearchedProducts/>
         )
-      }
+      },
+      {
+        path: 'dashboard',
+        element:<Dashboard/>
+      },
+     
     ],
   },
 ]);
