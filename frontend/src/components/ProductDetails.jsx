@@ -10,7 +10,7 @@ const ProductDetails = () => {
   const [product, setProduct] = useState([]);
   const [offers, setOffers] = useState([]);
   const [userId, setUserId] = useState(null);
-  const [owner, setOwner]=useState(null)
+  const [owner, setOwner]=useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -291,16 +291,24 @@ const Message = ({ message, type }) => {
 
   const handleSellOffer = async (offerId) => {
    // console.log(offerId);
+   if (product.buyerId === null){
     try {
       await axios.post(`http://localhost:8000/api/offers/accept/${offerId}`, { productId: id, offerId },{ withCredentials: true });
       setMessage("Accepted successfully!");
       setMessageType("success");
-      setRefreshKey(prevKey => prevKey + 1);
+      setTimeout(() => {
+        window.location.reload();
+      }, 2000);
     } catch (error) {
       setMessage("An error occurred. Please try again.");
       setMessageType("error");
       console.log(error);
     }
+  }
+  else {
+    setMessage("an offer already accepted");
+      setMessageType("success");
+  }
   };
   const handleAddToCart = async () => {
     try {

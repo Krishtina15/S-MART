@@ -9,6 +9,7 @@ import Notification from "../models/notification.model.js";
 export const createOffer = async (req, res) => {
   const { productId, price } = req.body;
   const buyerId = req.user._id;
+  console.log(buyerId);
 
   try {
     // Check if the buyer and product exist
@@ -107,17 +108,19 @@ export const acceptOffer = async (req, res) => {
   console.log(offerId);
   try {
     // Fetch the offer and check if it's valid
-    const offer = await Offer.findById(offerId).populate("productId");
+    const offer = await Offer.findById(offerId).populate("productId").populate("buyerId");
     if (!offer) {
       return res.status(404).json({ success: false, message: "Offer not found" });
     }
     const productId= offer.productId;
-    const buyerId = offer.buyerId;
+    const buyersId = offer.buyerId;
+    console.log(buyersId);
 
     // Ensure only the seller can accept the offer
     if (offer.sellerId.toString() !== req.user._id.toString()) {
       return res.status(403).json({ success: false, message: "You are not authorized to accept this offer" });
     }
+    
 
     // Update the offer status to accepted
     offer.status = "accepted";
@@ -125,7 +128,7 @@ export const acceptOffer = async (req, res) => {
 
     await Product.findByIdAndUpdate(
       productId,
-      { $push: { buyerId: buyerId } }, // Push the new product's ID to the user's products array
+      { $set: { buyerId: offer.buyerId } }, // Push the new product's ID to the user's products array
       { new: true }
       );
     
@@ -146,11 +149,6 @@ const acceptedNotification = new Notification({
 await acceptedNotification.save();
 io.to(offer.buyerId).emit("newNotification", acceptedNotification);
 
-await Product.findByIdAndUpdate(
-  productId,
-  { $push: { buyerId: buyerId } }, // Push the new product's ID to the user's products array
-  { new: true }
-  );
 
 // Create notifications for rejected buyers
 const otherOffers = await Offer.find({ productId, _id: { $ne: offerId } });
@@ -169,7 +167,7 @@ for (const otherOffer of otherOffers) {
     res.status(200).json({ success: true, message: "Offer accepted", data: offer });
   } catch (error) {
     console.error("Error accepting offer:", error.message);
-    res.status(500).json({ success: false, message: "Server Error" });
+    res.status(500).json({ success: false, message: error });
   }
 };
 
