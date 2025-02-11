@@ -122,6 +122,13 @@ export const acceptOffer = async (req, res) => {
     // Update the offer status to accepted
     offer.status = "accepted";
     await offer.save();
+
+    await Product.findByIdAndUpdate(
+      productId,
+      { $push: { buyerId: buyerId } }, // Push the new product's ID to the user's products array
+      { new: true }
+      );
+    
 // Reject all other offers for the same product
 await Offer.updateMany(
   { productId, _id: { $ne: offerId } },

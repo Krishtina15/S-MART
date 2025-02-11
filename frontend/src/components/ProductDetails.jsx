@@ -19,8 +19,27 @@ const ProductDetails = () => {
   const { authUser } = useAuthContext();
   const { addNotification } = useNotifications();
   const [profileImageError, setProfileImageError] = useState(false);
-
+  const [message, setMessage] = useState(null);
+  const [messageType, setMessageType] = useState("");
+  const [refreshKey, setRefreshKey] = useState(0);
   
+
+  // Message Component
+const Message = ({ message, type }) => {
+  if (!message) return null;
+
+  const messageStyles = {
+    success: "bg-green-100 border-green-400 text-green-700",
+    error: "bg-red-100 border-red-400 text-red-700",
+  };
+
+  return (
+    <div className={`${messageStyles[type]} border px-4 py-3 rounded relative mb-4`} role="alert">
+      <span className="block sm:inline">{message}</span>
+    </div>
+  )
+}
+
   const fetchProduct = async () => {
     try {
       const response = await axios.get(`http://localhost:8000/api/products/${id}`);
@@ -59,6 +78,7 @@ const ProductDetails = () => {
     try {
       const response = await axios.get(`http://localhost:8000/api/offers/${id}`);
       setOffers(response.data.data);
+
     } catch (error) {
       console.error("Error fetching offers:", error);
     }
@@ -73,12 +93,13 @@ const ProductDetails = () => {
         } catch (error) {
           console.error("Error incrementing views:", error);
         }
+
       };
     incrementViews(); 
     fetchProduct();
    fetchOffers();
   
-     }, [id]);
+     }, [id, refreshKey]);
 
 
   useEffect(() => {
@@ -132,11 +153,13 @@ const ProductDetails = () => {
         await axios.delete(`http://localhost:8000/api/products/${id}`, {
           withCredentials: true,
         });
-        alert("Product deleted successfully!");
+        setMessage("Product deleted successfully! Redirecting...");
+        setMessageType("success");
         navigate("/"); // Redirect to the home page after deletion
       } catch (error) {
         console.error("Error deleting product:", error);
-        alert("Error deleting product");
+        setMessage("An error occurred. Please try again.");
+        setMessageType("error");
       }
     }
   };
@@ -148,12 +171,15 @@ const ProductDetails = () => {
         { productId: id, price },
         { withCredentials: true }
       );
-      alert("Offer made successfully!");
+      setMessage("Offer made successfully!");
+      setMessageType("success");
+      setRefreshKey(prevKey => prevKey + 1);
       setShowOfferBox(false);
 
       } catch (error) {
         console.log(error)
-      alert("Error making offer");
+        setMessage("An error occurred. Please try again.");
+        setMessageType("error");
     }
   };
   const handleRemoveOffer = async () => {
@@ -168,14 +194,18 @@ const ProductDetails = () => {
         await axios.delete(`http://localhost:8000/api/offers/${offerId}`, {
           withCredentials: true,
         });
-        alert("Offer removed successfully!");
+        setMessage("Offer removed successfully!");
+        setMessageType("success");
+        
         setOffers((prevOffers) =>
           prevOffers.filter((offer) => offer._id !== offerId)
         ); // Update the offers state
+        setRefreshKey(prevKey => prevKey + 1);
         setShowOfferBox(false); // Hide the offer box
       } catch (error) {
         console.error("Error removing offer:", error);
-        alert("Error removing offer");
+        setMessage("An error occurred. Please try again.");
+        setMessageType("error");
       }
     }
   };
@@ -213,18 +243,22 @@ const ProductDetails = () => {
         { price},
         { withCredentials: true }
       );
-      alert("Offer updated successfully!");
+      setMessage("Offer updated successfully!");
+      setMessageType("success");
       
        // Update the offers state with the updated offer
        setOffers((prevOffers) =>
         prevOffers.map((offer) =>
           offer._id === offerId ? { ...offer, price: response.data.data.price } : offer
         )
+        
       );
-      
+      setRefreshKey(prevKey => prevKey + 1);
+      setShowOfferBox(false);
     } catch (error) {
       console.log(error);
-      alert("Error updating offer");
+      setMessage("An error occurred. Please try again.");
+      setMessageType("error");
     }
   };
 
@@ -259,9 +293,12 @@ const ProductDetails = () => {
    // console.log(offerId);
     try {
       await axios.post(`http://localhost:8000/api/offers/accept/${offerId}`, { productId: id, offerId },{ withCredentials: true });
-      alert("Accepted successfully!");
+      setMessage("Accepted successfully!");
+      setMessageType("success");
+      setRefreshKey(prevKey => prevKey + 1);
     } catch (error) {
-      alert("Error selling product");
+      setMessage("An error occurred. Please try again.");
+      setMessageType("error");
       console.log(error);
     }
   };
@@ -271,9 +308,12 @@ const ProductDetails = () => {
         userId: authUser._id,productId: id
       });
       console.log("Product added to cart:", res.data);
-      alert("product added to cart");
+      setMessage("product added to cart");
+      setMessageType("success");
+      setRefreshKey(prevKey => prevKey + 1);
     } catch (error) {
-      alert("error adding product to cart");
+      setMessage("An error occurred. Please try again.");
+      setMessageType("error");
       console.error('Error adding to cart:', error);
     }
   };
@@ -292,6 +332,9 @@ const ProductDetails = () => {
 
   return (
     <main className="p-8 bg-brown-50 min-h-screen font-sans">
+      
+      <Message message={message} type={messageType} />
+      
       <div className="max-w-6xl mx-auto">
         {/* Grid layout for image and details */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start mb-16">
@@ -354,6 +397,7 @@ const ProductDetails = () => {
               {/*when an offer is accepted*/}
               {product.buyerId && userId !==0 ?(
                 <>
+                {/*seller view*/}
                 {authUser && authUser._id === userId && (
                   <div>
                   <h2 className="text-xl font-semibold text-brown-800">Accepted Offer</h2>
@@ -464,7 +508,14 @@ const ProductDetails = () => {
                     // If the user has already made an offer, show "Update Offer"
                     <div className="space-y-4">
                       <button
-                        onClick={() => setShowOfferBox(true)}
+                        onClick={() => {
+                          setShowOfferBox(true);
+                          // Set the price to the user's existing offer when opening the box
+                          const userOffer = offers.find((offer) => offer.buyerId._id === authUser._id);
+                          if (userOffer) {
+                            setPrice(userOffer.price);
+                          }
+                        }}
                         className="w-full py-3 bg-brown-600 text-white rounded-lg hover:bg-brown-700 transition"
                       >
                         Update Offer

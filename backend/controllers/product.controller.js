@@ -1,6 +1,7 @@
 import mongoose from 'mongoose';
 import Product from "../models/product.model.js";
 import User from "../models/user.model.js"; // Import User model
+import Offer from "../models/offer.model.js";
 import multer from 'multer';
 // Configure Multer for file storage
 const storage = multer.diskStorage({
@@ -192,13 +193,16 @@ export const deleteProduct = async (req, res) => {
       return res.status(404).json({ success: false, message: "Product not found" });
     }
 
+    const userId = product.userId;
+
     await User.findByIdAndUpdate(
       userId,
       { $pull: { products: id } }, // Remove the product ID from the user's products array
       { new: true }
     );
 
-    const userId = product.userId;
+    await Offer.deleteMany({productId: id});
+
     const deletedProduct = await Product.findByIdAndDelete(id);
     if (!deletedProduct) {
       return res.status(404).json({ success: false, message: "Product not found" });
