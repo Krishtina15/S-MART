@@ -18,7 +18,7 @@ import PaymentDetails from "./components/PaymentDetails.jsx";
 import NotificationPage from './components/NotificationPage.jsx';
 import SearchedProducts from './components/SearchedProducts.jsx';
 import { SocketContextProvider } from './context/SocketContext.jsx';
-
+import { NotificationProvider } from "./NotificationProvider.jsx";
 // Router setup
 const router = createBrowserRouter([
   {
@@ -46,7 +46,11 @@ const router = createBrowserRouter([
         path: "notification",
         element:(
           <ProtectedRoute>
-          <NotificationPage />
+            <SocketContextProvider>
+            <NotificationProvider>
+            <NotificationPage />
+            </NotificationProvider>
+            </SocketContextProvider>
         </ProtectedRoute>
         ),
       },

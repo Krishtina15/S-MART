@@ -17,7 +17,7 @@ const ProductDetails = () => {
   const [price, setPrice] = useState(null);
   const [showOfferBox, setShowOfferBox] = useState(false);
   const { authUser } = useAuthContext();
-  const { useNotifications } = useNotifications();
+  //const { useNotifications } = useNotifications();
   const [profileImageError, setProfileImageError] = useState(false);
   const [message, setMessage] = useState(null);
   const [messageType, setMessageType] = useState("");
@@ -102,10 +102,10 @@ const Message = ({ message, type }) => {
      }, [id, refreshKey]);
 
 
-  useEffect(() => {
+  /*useEffect(() => {
     if (authUser) {
       // Listen for new offer notifications
-      socket.on("newOffer", (data) => {
+      socket?.on("newOffer", (data) => {
          const { productId, buyerId, price, message } = data;
 
         // Notify the product owner
@@ -116,7 +116,7 @@ const Message = ({ message, type }) => {
       });
 
       // Listen for accepted offer notifications
-      socket.on("offerAccepted", (data) => {
+      socket?.on("offerAccepted", (data) => {
           const { buyerId, message } = data;
 
         // Notify the buyer
@@ -127,7 +127,7 @@ const Message = ({ message, type }) => {
       });
 
       // Listen for rejected offer notifications
-      socket.on("offerRejected", (data) => {
+      socket?.on("offerRejected", (data) => {
         const { buyerId, message } = data;
 
     // Notify the buyer
@@ -145,7 +145,7 @@ const Message = ({ message, type }) => {
       socket.off("offerRejected");
     };
   }, [authUser]);
-
+*/
   const handleNext = () => {
     setCurrentImageIndex((prevIndex) =>
       prevIndex === product.images.length - 1 ? 0 : prevIndex + 1

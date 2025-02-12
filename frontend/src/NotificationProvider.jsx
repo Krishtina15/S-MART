@@ -4,7 +4,7 @@ import { useAuthContext } from "./context/AuthContext.jsx";
 import notificationSound from "./assets/notification.mp3";
 import axios from "axios";
 
-const NotificationContext = createContext();
+export const NotificationContext = createContext();
 
 export const NotificationProvider = ({ children }) => {
   const [notifications, setNotifications] = useState([]);
@@ -14,7 +14,7 @@ export const NotificationProvider = ({ children }) => {
   const fetchNotifications = async () => {
     if (authUser) {
       try {
-        const response = await axios.get(`http://localhost:8000/api/notifications/${authUser._id}`);
+        const response = await axios.get(`http://localhost:8000/api/notifications/${authUser._id}`,{ withCredentials: true });
         setNotifications(response.data.data);
       } catch (error) {
         console.error("Error fetching notifications:", error);
@@ -25,10 +25,11 @@ export const NotificationProvider = ({ children }) => {
   useEffect(() => {
     fetchNotifications();
 
-    if (authUser) {
+    if (authUser && socket ) {
       // Join the user's room
+      
       socket.emit("joinRoom", authUser._id);
-
+      
       // Listen for new notifications
       const handleNewNotification = (newNotification) => {
         if (newNotification.userId === authUser._id) {
@@ -49,7 +50,7 @@ export const NotificationProvider = ({ children }) => {
       // Clear notifications if the user logs out
       setNotifications([]);
     }
-  }, [authUser]);
+  }, [authUser,socket]);
 
   // Function to clear all notifications
   const clearNotifications = () => {
