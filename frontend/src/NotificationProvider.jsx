@@ -27,6 +27,7 @@ export const NotificationProvider = ({ children }) => {
 
     if (authUser && socket ) {
       // Join the user's room
+      console.log("Joining room for:", authUser._id);
       
       socket.emit("joinRoom", authUser._id);
       

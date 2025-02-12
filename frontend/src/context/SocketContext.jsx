@@ -2,7 +2,7 @@ import { createContext, useState, useEffect, useContext } from "react";
 import { useAuthContext } from "./AuthContext";
 import io from "socket.io-client";
 
-const SocketContext = createContext();
+const SocketContext = createContext(null);
 
 export const useSocketContext = () => {
 	return useContext(SocketContext);
@@ -19,6 +19,10 @@ export const SocketContextProvider = ({ children }) => {
 				query: {
 					userId: authUser._id,
 				},
+                withCredentials: true,
+                reconnection: true,          // Enables automatic reconnection
+                reconnectionAttempts: 5,     // Try 5 times before giving up
+                reconnectionDelay: 3000, 
 			});
 
 			setSocket(socket);
@@ -28,10 +32,15 @@ export const SocketContextProvider = ({ children }) => {
 				setOnlineUsers(users);
 			});
 
-			return () => socket.close();
+			return () => {
+                if (socket) {
+                    socket.disconnect();
+                }
+            };
+            
 		} else {
 			if (socket) {
-				socket.close();
+				socket.disconnect();
 				setSocket(null);
 			}
 		}
