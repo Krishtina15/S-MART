@@ -17,8 +17,10 @@ export const AuthContextProvider = ({ children }) => {
 
   // Logout function to clear user data
   const logout = () => {
+    if (window.confirm("Are you sure you want to log out?")) {
     localStorage.removeItem("user");  // Remove from localStorage
     setAuthUser(null);  // Reset the authUser state
+    }
   };
 
   return (
