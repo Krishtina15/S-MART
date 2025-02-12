@@ -123,19 +123,23 @@ const handleImageClick = (productId) => {
         </div>
 
         {/* Navigation */}
-        <div className="flex justify-center mb-8 border-b border-brown-100">
-          {['profile', 'products','cart','offers' ,'dashboard'].map((tab) => (
-            <button
-              key={tab}
-              onClick={() => setActiveTab(tab)}
-              className={`px-6 py-3 capitalize ${
-                activeTab === tab 
-                  ? 'border-b-2 border-brown-700 text-brown-900' 
-                  : 'text-brown-500 hover:text-brown-700'
-              }`}
-            >
-              {tab}
-            </button>
+        {['profile', 'products', 'cart', 'offers', 'dashboard'].map((tab) => (
+    <button
+        key={tab}
+        onClick={() => {
+            setActiveTab(tab);
+            if (tab === 'dashboard') {
+                navigate('/dashboard');
+            }
+        }}
+        className={`px-6 py-3 capitalize ${
+            activeTab === tab 
+                ? 'border-b-2 border-brown-700 text-brown-900' 
+                : 'text-brown-500 hover:text-brown-700'
+        }`}
+    >
+        {tab}
+    </button>
           ))}
         </div>
 
@@ -304,14 +308,10 @@ const handleImageClick = (productId) => {
                 )}
               </div>
             )}
-            {activeTab=='dashboard'&&
-            <Link>
-            </Link>
-            }
+          
           </div>
         </div>
       </div>
-    </div>
   );
 };
 
