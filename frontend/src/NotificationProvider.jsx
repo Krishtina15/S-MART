@@ -1,6 +1,6 @@
 import React, { useEffect, useState, createContext, useContext } from "react";
-import socket from "./utils/socket";
-import { useAuthContext } from "./context/AuthContext";
+import { useSocketContext } from "./context/SocketContext.jsx";
+import { useAuthContext } from "./context/AuthContext.jsx";
 import notificationSound from "./assets/notification.mp3";
 import axios from "axios";
 
@@ -9,7 +9,7 @@ const NotificationContext = createContext();
 export const NotificationProvider = ({ children }) => {
   const [notifications, setNotifications] = useState([]);
   const { authUser } = useAuthContext();
-
+  const { socket } = useSocketContext();
   // Fetch notifications from the backend
   const fetchNotifications = async () => {
     if (authUser) {
