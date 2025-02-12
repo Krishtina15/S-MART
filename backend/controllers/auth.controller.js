@@ -58,6 +58,7 @@ export const signup = async (req, res) => {
 		email,
 		profilePicture, // now defined from req.file
 		password: hashedPassword,
+		Admin:false,
 	  });
   
 	  // Generate JWT token here

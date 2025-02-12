@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import axios from "axios";
+import Product from "../../../backend/models/product.model";
 import { useAuthContext } from "../context/AuthContext.jsx";
 import { useNotifications } from "../NotificationProvider.jsx";
 import { useSocketContext } from "../context/SocketContext.jsx";
@@ -344,7 +345,34 @@ const Message = ({ message, type }) => {
     }
   };
 
-  
+  const handleMarkAsSold= async (productId,buyerId)=> {
+     try{
+      const response = await axios.post(`http://localhost:8000/api/sales-record`,{
+        sellerId:authUser._id, buyerId,productId})
+      ;
+      if (response.data.success){
+        console.log(" post a sellerId, buyerId and productId"
+        )
+        setMessage("Sale recorded successively");
+        setMessageType("success");
+        
+        
+
+      }else {
+        console.log("Error durin postiong"
+        )
+        setMessage(response.data.message);
+        setMessageType("error");
+      } }catch (error) {
+
+        console.error("Error marking as sold:", error);
+    
+        setMessage("An error occurred while recording the sale.");
+    
+        setMessageType("error");
+    
+      }
+      };
 
   if (loading) {
     return <p className="text-center text-lg text-brown-600">Loading...</p>;
@@ -448,7 +476,7 @@ const Message = ({ message, type }) => {
                             <td className="p-3 text-brown-600">Accepted</td>
                             <td className="p-3">
                               <button
-                                onClick={() => handleMarkAsSold(product._id)}
+                                onClick={() => handleMarkAsSold(product._id,product.buyerId)}
                                 className="py-2 px-4 bg-green-600 text-white rounded-md hover:bg-green-700"
                               >
                                 Mark as Sold

@@ -232,5 +232,29 @@ export const incrementView = async (req,res)=>{
   }
 };
 
+export const markProductAsSold = async (req, res) => {
+  try {
+    console.log("Received request to mark as sold for ID:", req.params.id);
+    
+    const product = await Product.findById(req.params.id);
+    
+    if (!product) {
+      console.log("Product not found in database");
+      return res.status(404).json({ message: "Product not found" });
+    }
+
+    product.sold = true;
+    await product.save();
+
+    console.log("Product updated successfully:", product);
+    res.json(product);
+  } catch (error) {
+    console.error("Error in markProductAsSold:", error);
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+};
+
+
+
 
 

@@ -17,6 +17,7 @@ const saleSchema = new mongoose.Schema(
 			ref: "Product",
             required: true,
         },
+        
 	},{ timestamps:true}
 );
 
