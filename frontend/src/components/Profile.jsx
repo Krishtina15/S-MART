@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useAuthContext } from "../context/AuthContext";
 import { useNavigate } from 'react-router-dom';
+import { Link } from 'lucide-react';
 const Profile = () => {
   const { authUser } = useAuthContext();
   const [offers, setOffers] = useState([]);
@@ -123,7 +124,7 @@ const handleImageClick = (productId) => {
 
         {/* Navigation */}
         <div className="flex justify-center mb-8 border-b border-brown-100">
-          {['profile', 'products','cart','offers' ,'settings'].map((tab) => (
+          {['profile', 'products','cart','offers' ,'dashboard'].map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
@@ -303,6 +304,10 @@ const handleImageClick = (productId) => {
                 )}
               </div>
             )}
+            {activeTab=='dashboard'&&
+            <Link>
+            </Link>
+            }
           </div>
         </div>
       </div>

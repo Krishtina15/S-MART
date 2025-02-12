@@ -1,36 +1,61 @@
-import Product from "../models/product.model";
-import Sale from "../models/product_sale.model";
+import mongoose from 'mongoose';
+import Product from "../models/product.model.js"; // Double-check this path!
+import Sale from "../models/product_sale.model.js";
 
-export const recordSale = async (req,res)=>{
-    const {sellerId, buyerId, productId} =req.body;
+export const recordSale = async (req, res) => {
+    const { sellerId, buyerId, productId } = req.body;
 
-    if(!sellerId || !buyerId || !productId){
-        return res.status(400).json({success: false, message:"All files are required"});
-
+    if (!sellerId || !buyerId || !productId) {
+        return res.status(400).json({ success: false, message: "All fields are required" });
     }
 
-    if (!mongoose.Types.ObjectId.isValid(productId))
-    {
-        return res.status(400).json({success:false, message:"Invalid Product ID"});
-
+    if (!mongoose.Types.ObjectId.isValid(productId)) {
+        return res.status(400).json({ success: false, message: "Invalid Product ID" });
     }
-    try{
-        const product =await Product.findById(productId);
-        if(!product){
-            return res.status(400).json({sucess:false, message: "Product Not Found"});
+    if (!mongoose.Types.ObjectId.isValid(buyerId)) {
+        return res.status(400).json({ success: false, message: "Invalid buyerId" });
+    }
+    if (!mongoose.Types.ObjectId.isValid(sellerId)) {
+        return res.status(400).json({ success: false, message: "Invalid sellerId" });
+    }
 
+    try {
+        const product = await Product.findById(productId);
+        if (!product) {
+            return res.status(400).json({ success: false, message: "Product Not Found" });
         }
-        const newSale= Sale({sellerId, buyerId, productId});
-        await newSale.save();
 
-        product.soldCount+=1;
-        await product.save();
+        // Check for existing sale (prevent duplicates)
+        const existingSale = await Sale.findOne({ sellerId, buyerId, productId });
+        if (existingSale) {
+            return res.status(400).json({ success: false, message: "Sale already recorded" });
+        }
 
-        res.status(201).json({success:true, message:"Sale recorded"})
-    }
-    catch(error){
-        console.error("Error recording Sale:", error.message);
-        res.status(500).json({success:false, message:"Server Error"});
+        const session = await mongoose.startSession();  // Start a MongoDB session for transaction
+        session.startTransaction();
+
+        try {
+            const newSale = new Sale({ sellerId, buyerId, productId });
+            await newSale.save({ session }); // Pass the session
+
+            product.soldCount += 1;
+            await product.save({ session }); // Pass the session
+
+            await session.commitTransaction();
+            session.endSession();
+
+            res.status(201).json({ success: true, message: "Sale recorded" });
+        } catch (transactionError) {
+            await session.abortTransaction();
+            session.endSession();
+
+            console.error("Error during transaction:", transactionError); // Log the full error object
+            res.status(500).json({ success: false, message: "Error recording sale (transaction failed)" });
+        }
+
+    } catch (error) {
+        console.error("Error recording Sale:", error); // Log the full error object
+        res.status(500).json({ success: false, message: "Server Error" });
     }
 };
 
@@ -54,7 +79,16 @@ export const getSalesBySeller = async(req,res)=> {
 // Function to get weekly sales and revenue
 export const getWeeklySalesRevenue = async (req, res) => {
     try {
+        const { sellerId } = req.query;
+
+        if (!sellerId) {
+            return res.status(400).json({ message: "Seller ID is required" });
+        }
+
         const sales = await Sale.aggregate([
+            {
+                $match: { sellerId: sellerId } // ✅ Filter by sellerId
+            },
             {
                 $lookup: {
                     from: "products",
@@ -84,3 +118,4 @@ export const getWeeklySalesRevenue = async (req, res) => {
         res.status(500).json({ message: "Error fetching weekly sales and revenue", error });
     }
 };
+

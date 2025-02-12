@@ -12,6 +12,7 @@ import offerRoutes from "./routes/offer.route.js";
 import profileRoutes from "./routes/profile.route.js";
 import notificationRoutes from "./routes/notification.route.js";
 import cartRoutes from "./routes/cart.routes.js";
+import productSaleRoutes from "./routes/productSales.route.js";
 dotenv.config();
 
 const app = express();
@@ -30,6 +31,7 @@ app.use("/api/carts", cartRoutes);
 app.use("/api",offerRoutes);
 app.use("/api/user",profileRoutes);
 app.use("/api", notificationRoutes);
+app.use("/api",productSaleRoutes);
 
 if (process.env.NODE_ENV === "production") {
 	app.use(express.static(path.join(__dirname, "/frontend")));

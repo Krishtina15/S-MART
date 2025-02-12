@@ -33,16 +33,21 @@ const userSchema = new mongoose.Schema({
   cart:[{
     type:mongoose.Schema.Types.ObjectId,
     ref:'Product',
-  },
+  }],
   totalSales:{
     type:Number,
   },
   totalRevenue:{
     type:Number,
-  }]
+  },
+  Admin:{
+    type:Boolean,
+    required :true,
+  }
   
 }, { timestamps: true });
 
 const User = mongoose.model('User', userSchema);
 
 export default User;
+

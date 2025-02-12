@@ -125,7 +125,7 @@ export const acceptOffer = async (req, res) => {
 
     await Product.findByIdAndUpdate(
       productId,
-      { $push: { buyerId: buyerId } }, // Push the new product's ID to the user's products array
+      { $set: { buyerId: buyerId } }, // Push the new product's ID to the user's products array
       { new: true }
       );
     
@@ -146,11 +146,7 @@ const acceptedNotification = new Notification({
 await acceptedNotification.save();
 io.to(offer.buyerId).emit("newNotification", acceptedNotification);
 
-await Product.findByIdAndUpdate(
-  productId,
-  { $push: { buyerId: buyerId } }, // Push the new product's ID to the user's products array
-  { new: true }
-  );
+
 
 // Create notifications for rejected buyers
 const otherOffers = await Offer.find({ productId, _id: { $ne: offerId } });
