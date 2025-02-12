@@ -204,6 +204,13 @@ const Header = () => {
               <FaStore />
               <span>Sell</span>
             </NavLink>
+            <NavLink
+            to="/notification"
+            className="block px-4 py-2 text-gray-800 hover:bg-gray-200 rounded flex items-center space-x-2"
+            onClick={() => setIsOpen(false)}>
+             <FaBell />
+              <span>Notification</span>
+            </NavLink>
           </div>
         </div>
       )}

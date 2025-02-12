@@ -31,7 +31,7 @@ app.use("/api/carts", cartRoutes);
 app.use("/api",offerRoutes);
 app.use("/api/user",profileRoutes);
 app.use("/api", notificationRoutes);
-app.use("/api",productSaleRoutes);
+app.use("/api/productSales",productSaleRoutes);
 
 if (process.env.NODE_ENV === "production") {
 	app.use(express.static(path.join(__dirname, "/frontend")));
@@ -39,7 +39,12 @@ if (process.env.NODE_ENV === "production") {
 		res.sendFile(path.resolve(__dirname, "frontend", "index.html"));
 	});
 }
-
+app.use((req, res, next) => {
+	if (req.url.endsWith(".jsx")) {
+	  res.type("application/javascript");
+	}
+	next();
+  });
 app.listen(PORT, () => {
 	connectDB().then(() => {
 		Product.createIndexes(); })// Create indexes for the Product model
