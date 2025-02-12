@@ -2,9 +2,9 @@ import React, { useEffect, useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import Product from "../../../backend/models/product.model";
-import { useAuthContext } from "../context/AuthContext";
-import { useNotifications } from "../context/NotificationContext";
-import socket from "../utils/socket";
+import { useAuthContext } from "../context/AuthContext.jsx";
+import { useNotifications } from "../NotificationProvider.jsx";
+import { useSocketContext } from "../context/SocketContext.jsx";
 const ProductDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -18,12 +18,12 @@ const ProductDetails = () => {
   const [price, setPrice] = useState(null);
   const [showOfferBox, setShowOfferBox] = useState(false);
   const { authUser } = useAuthContext();
-  const { addNotification } = useNotifications();
+  //const { useNotifications } = useNotifications();
   const [profileImageError, setProfileImageError] = useState(false);
   const [message, setMessage] = useState(null);
   const [messageType, setMessageType] = useState("");
   const [refreshKey, setRefreshKey] = useState(0);
-  
+  const {socket}=useSocketContext();
 
   // Message Component
 const Message = ({ message, type }) => {
@@ -103,26 +103,41 @@ const Message = ({ message, type }) => {
      }, [id, refreshKey]);
 
 
-  useEffect(() => {
+  /*useEffect(() => {
     if (authUser) {
       // Listen for new offer notifications
-      socket.on("newOffer", (data) => {
-        addNotification(data);
+      socket?.on("newOffer", (data) => {
+         const { productId, buyerId, price, message } = data;
+
+        // Notify the product owner
+        io.to(productId).emit("newNotification", {
+          userId: productId, // The product owner's ID
+          message,
+        });
       });
 
       // Listen for accepted offer notifications
-      socket.on("offerAccepted", (data) => {
-        addNotification(data);
-        if (authUser._id === data.offer.buyerId) {
-          navigate(`/payment/${data.offer._id}`); // Redirect to payment page
-        }
+      socket?.on("offerAccepted", (data) => {
+          const { buyerId, message } = data;
+
+        // Notify the buyer
+        io.to(buyerId).emit("newNotification", {
+          userId: buyerId,
+          message,
+        });
       });
 
       // Listen for rejected offer notifications
-      socket.on("offerRejected", (data) => {
-        addNotification(data);
-      });
-    }
+      socket?.on("offerRejected", (data) => {
+        const { buyerId, message } = data;
+
+    // Notify the buyer
+    io.to(buyerId).emit("newNotification", {
+      userId: buyerId,
+      message,
+    });
+  });
+}
 
     // Cleanup on unmount
     return () => {
@@ -130,8 +145,8 @@ const Message = ({ message, type }) => {
       socket.off("offerAccepted");
       socket.off("offerRejected");
     };
-  }, [authUser, addNotification]);
-
+  }, [authUser]);
+*/
   const handleNext = () => {
     setCurrentImageIndex((prevIndex) =>
       prevIndex === product.images.length - 1 ? 0 : prevIndex + 1
@@ -295,6 +310,9 @@ const Message = ({ message, type }) => {
    if (product.buyerId === null){
     try {
       await axios.post(`http://localhost:8000/api/offers/accept/${offerId}`, { productId: id, offerId },{ withCredentials: true });
+
+      
+
       setMessage("Accepted successfully!");
       setMessageType("success");
       setTimeout(() => {

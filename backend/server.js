@@ -3,7 +3,7 @@ import dotenv from "dotenv";
 import path from "path";
 import cookieParser from "cookie-parser";
 import cors from "cors";
-
+import { app, server } from "./socket/socket.js";
 import { connectDB } from "./config/db.js";
 import Product from "./models/product.model.js";
 import authRoutes from "./routes/auth.routes.js";
@@ -15,10 +15,11 @@ import cartRoutes from "./routes/cart.routes.js";
 import productSaleRoutes from "./routes/productSales.route.js";
 dotenv.config();
 
-const app = express();
-const PORT = process.env.PORT || 5000;
+//const app = express();
 
 const __dirname = path.resolve();
+const PORT = process.env.PORT || 5000;
+
 
 app.use(express.json()); // allows us to accept JSON data in the req.body
 app.use(cookieParser());
@@ -45,7 +46,7 @@ app.use((req, res, next) => {
 	}
 	next();
   });
-app.listen(PORT, () => {
+server.listen(PORT, () => {
 	connectDB().then(() => {
 		Product.createIndexes(); })// Create indexes for the Product model
 	console.log("Server started at http://localhost:" + PORT);

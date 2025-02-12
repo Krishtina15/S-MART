@@ -16,9 +16,9 @@ import ProtectedRoute from './components/ProtectedRoute'; // Import ProtectedRou
 import ChatPage from './components/Chatpage.jsx';
 import PaymentDetails from "./components/PaymentDetails.jsx";
 import NotificationPage from './components/NotificationPage.jsx';
-import { NotificationProvider } from "./context/NotificationContext";
 import SearchedProducts from './components/SearchedProducts.jsx';
-import Dashboard from './components/Dashboard.jsx';
+import { SocketContextProvider } from './context/SocketContext.jsx';
+import { NotificationProvider } from "./NotificationProvider.jsx";import Dashboard from './components/Dashboard.jsx';
 // Router setup
 const router = createBrowserRouter([
   {
@@ -46,7 +46,11 @@ const router = createBrowserRouter([
         path: "notification",
         element:(
           <ProtectedRoute>
-          <NotificationPage />
+            <SocketContextProvider>
+            <NotificationProvider>
+            <NotificationPage />
+            </NotificationProvider>
+            </SocketContextProvider>
         </ProtectedRoute>
         ),
       },
@@ -121,9 +125,9 @@ const router = createBrowserRouter([
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <AuthContextProvider>
-    <NotificationProvider>
+    <SocketContextProvider>
       <RouterProvider router={router} />
-      </NotificationProvider>
+      </SocketContextProvider>
     </AuthContextProvider>
   </StrictMode>
 );

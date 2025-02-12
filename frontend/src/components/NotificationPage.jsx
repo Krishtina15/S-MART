@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { useNotifications } from "../context/NotificationContext";
+import { useNotifications } from "../NotificationProvider";
 import axios from "axios";
 
 const NotificationPage = () => {
