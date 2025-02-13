@@ -11,7 +11,7 @@ export const NotificationProvider = ({ children }) => {
   const { authUser } = useAuthContext();
   const { socket } = useSocketContext();
   // Fetch notifications from the backend
-  const fetchNotifications = async () => {
+ const fetchNotifications = async () => {
     if (authUser) {
       try {
         const response = await axios.get(`http://localhost:8000/api/notifications/${authUser._id}`,{ withCredentials: true });

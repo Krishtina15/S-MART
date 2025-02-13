@@ -4,7 +4,7 @@ import User from "../models/user.model.js";
 import Offer from "../models/offer.model.js";
 import {io} from "../socket/socket.js";
 import Notification from "../models/notification.model.js";
-
+import { sendNotification } from '../socket/socket.js';
 // POST request to create a new offer
 export const createOffer = async (req, res) => {
   const { productId, price } = req.body;
@@ -49,6 +49,10 @@ export const createOffer = async (req, res) => {
 
     // Emit the notification to the seller in real time
     io.to(product.userId).emit("newNotification", notification);
+    sendNotification(buyerId, {
+      message: `You have a new offer for ${product.productName} from ${req.user.username}.`,
+      timestamp: new Date(),
+  });
     res.status(201).json({ success: true, data: offer });
   } catch (error) {
     console.error("Error creating offer:", error.message);
@@ -147,8 +151,10 @@ const acceptedNotification = new Notification({
 });
 
 await acceptedNotification.save();
-io.to(offer.buyerId).emit("newNotification", acceptedNotification);
-
+sendNotification(buyerId, {
+  message: `Sorry, your offer for ${otherOffer.productId.productName} has been rejected.`,
+  timestamp: new Date(),
+});
 
 // Create notifications for rejected buyers
 const otherOffers = await Offer.find({ productId, _id: { $ne: offerId } });
@@ -161,7 +167,10 @@ for (const otherOffer of otherOffers) {
   });
 
   await rejectedNotification.save();
-  io.to(otherOffer.buyerId).emit("newNotification", rejectedNotification);
+  sendNotification(buyerId, {
+    message: `Sorry, your offer for ${otherOffer.productId.productName} has been rejected.`,
+    timestamp: new Date(),
+});
 }
 
     res.status(200).json({ success: true, message: "Offer accepted", data: offer });

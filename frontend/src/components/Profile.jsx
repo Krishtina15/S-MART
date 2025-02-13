@@ -4,7 +4,7 @@ import { useAuthContext } from "../context/AuthContext";
 import { useNavigate } from 'react-router-dom';
 import { Link } from 'lucide-react';
 const Profile = () => {
-  const { authUser } = useAuthContext();
+  const { authUser, logout } = useAuthContext();
   const [offers, setOffers] = useState([]);
   const [activeTab, setActiveTab] = useState('profile');
   const [editMode, setEditMode] = useState(false);
@@ -156,7 +156,7 @@ const handleImageClick = (productId) => {
               
               <p className="text-brown-600">{Array.isArray(offers) ? offers.length : 0}</p>
             </div>
-            <button className="w-full bg-brown-700 text-white py-2 rounded hover:bg-brown-800">
+            <button onClick={logout} className="w-full bg-brown-700 text-white py-2 rounded hover:bg-brown-800">
               Logout
             </button>
           </div>

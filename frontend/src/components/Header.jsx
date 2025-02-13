@@ -3,14 +3,14 @@ import { Link, NavLink, useNavigate } from "react-router-dom";
 import { useAuthContext } from "../context/AuthContext";
 import { FaSearch, FaUser, FaSignInAlt, FaSignOutAlt, FaHome, FaStore, FaBars, FaTimes, FaBell } from "react-icons/fa";
 import martImage from '../assets/Mart.png';
-
+import { useNotifications } from "../NotificationProvider";
 const Header = () => {
   const { authUser, logout } = useAuthContext();
   const [isOpen, setIsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [isSearchVisible, setIsSearchVisible] = useState(false);
   const navigate = useNavigate();
-
+useNotifications();
   const handleInputChange = (e) => setSearchQuery(e.target.value);
 
   const handleSearch = () => {
@@ -19,7 +19,7 @@ const Header = () => {
       setIsSearchVisible(false);
     }
   };
-
+  
   const toggleMenu = () => setIsOpen(!isOpen);
   const toggleSearch = () => setIsSearchVisible(!isSearchVisible);
 

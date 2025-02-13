@@ -3,7 +3,7 @@ import { useParams, Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import Product from "../../../backend/models/product.model";
 import { useAuthContext } from "../context/AuthContext.jsx";
-import { useNotifications } from "../NotificationProvider.jsx";
+//import { useNotifications } from "../NotificationProvider.jsx";
 import { useSocketContext } from "../context/SocketContext.jsx";
 const ProductDetails = () => {
   const { id } = useParams();
@@ -103,7 +103,7 @@ const Message = ({ message, type }) => {
      }, [id, refreshKey]);
 
 
-  /*useEffect(() => {
+  useEffect(() => {
     if (authUser) {
       // Listen for new offer notifications
       socket?.on("newOffer", (data) => {
@@ -146,7 +146,7 @@ const Message = ({ message, type }) => {
       socket.off("offerRejected");
     };
   }, [authUser]);
-*/
+
   const handleNext = () => {
     setCurrentImageIndex((prevIndex) =>
       prevIndex === product.images.length - 1 ? 0 : prevIndex + 1
