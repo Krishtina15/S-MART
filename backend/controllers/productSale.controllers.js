@@ -1,4 +1,4 @@
-import mongoose from 'mongoose';
+import mongoose, {Types}from 'mongoose';
 import Product from "../models/product.model.js"; // Double-check this path!
 import Sale from "../models/product_sale.model.js";
 
@@ -68,7 +68,9 @@ export const getSalesBySeller = async(req,res)=> {
 
     try{
         const sales= await Sale.find({sellerId}).populate("productId", "productName price");
-        res.status(500).json({success:true , sales});
+        console.log(sales)
+        res.status(200).json({ success: true, sales });
+
     }catch(error){
         console.error("Error fetching sales history:", error.message);
         res.status(500).json({success:false, message: "Server Error"});
@@ -76,18 +78,22 @@ export const getSalesBySeller = async(req,res)=> {
 }
 
 
-// Function to get weekly sales and revenue
-export const getWeeklySalesRevenue = async (req, res) => {
-    try {
-        const { sellerId } = req.query;
 
-        if (!sellerId) {
-            return res.status(400).json({ message: "Seller ID is required" });
-        }
+
+export const getWeeklySalesRevenue = async (req, res) => {
+    console.log("Received request for weekly sales revenue"); // Log the request
+    const { sellerId } = req.params;
+
+    if (!sellerId) {
+        return res.status(400).json({ message: "Seller ID is required" });
+    }
+
+    try {
+        const objectSellerId = new mongoose.Types.ObjectId(sellerId);
 
         const sales = await Sale.aggregate([
             {
-                $match: { sellerId: sellerId } // ✅ Filter by sellerId
+                $match: { sellerId:objectSellerId } // Convert to ObjectId
             },
             {
                 $lookup: {
@@ -106,16 +112,16 @@ export const getWeeklySalesRevenue = async (req, res) => {
                         year: { $year: "$createdAt" },
                         week: { $week: "$createdAt" }
                     },
-                    totalSales: { $sum: 1 }, // Count number of sales per week
-                    totalRevenue: { $sum: "$product.price" } // Sum of product prices sold
+                    totalSales: { $sum: 1 },
+                    totalRevenue: { $sum: "$product.price" }
                 }
             },
-            { $sort: { "_id.year": -1, "_id.week": -1 } } // Sort by latest weeks first
+            { $sort: { "_id.year": -1, "_id.week": -1 } }
         ]);
-
-        res.json(sales);
+        console.log("Weekly Sales Data:", sales); // Log the sales data
+        res.json(sales); // Ensure this returns an array
     } catch (error) {
+        console.error("Error fetching weekly sales and revenue:", error);
         res.status(500).json({ message: "Error fetching weekly sales and revenue", error });
     }
 };
-
