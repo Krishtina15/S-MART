@@ -103,7 +103,7 @@ const Message = ({ message, type }) => {
      }, [id, refreshKey]);
 
 
-  useEffect(() => {
+  /*useEffect(() => {
     if (authUser) {
       // Listen for new offer notifications
       socket?.on("newOffer", (data) => {
@@ -145,7 +145,7 @@ const Message = ({ message, type }) => {
       socket.off("offerAccepted");
       socket.off("offerRejected");
     };
-  }, [authUser]);
+  }, [authUser]);*/
 
   const handleNext = () => {
     setCurrentImageIndex((prevIndex) =>
@@ -347,7 +347,7 @@ const Message = ({ message, type }) => {
 
   const handleMarkAsSold= async (productId,buyerId)=> {
      try{
-      const response = await axios.post(`http://localhost:8000/api/sales-record`,{
+      const response = await axios.post(`http://localhost:8000/api/ProductSales/sales-record`,{
         sellerId:authUser._id, buyerId,productId})
       ;
       if (response.data.success){

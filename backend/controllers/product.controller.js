@@ -30,7 +30,7 @@ export const uploadImages = upload.array('images', 5); // Limit to 5 images per 
 
 export const getProducts = async (req, res) => {
   try {
-    const products = await Product.find({});
+    const products = await Product.find({sold:false});
     res.status(200).json({ success: true, data: products });
   } catch (error) {
     console.log("error in fetching products:", error.message);

@@ -31,12 +31,19 @@ export const recordSale = async (req, res) => {
             return res.status(400).json({ success: false, message: "Sale already recorded" });
         }
 
+
         const session = await mongoose.startSession();  // Start a MongoDB session for transaction
         session.startTransaction();
 
         try {
             const newSale = new Sale({ sellerId, buyerId, productId });
             await newSale.save({ session }); // Pass the session
+            
+            await Product.findByIdAndUpdate(
+                productId,
+                { $set: { sold: true } }, // Push the new product's ID to the user's products array
+                { new: true }
+              );
 
             product.soldCount += 1;
             await product.save({ session }); // Pass the session
