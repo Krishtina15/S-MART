@@ -1,19 +1,25 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import './index.css';
-import App from './App.jsx';
-import React from 'react';
 import { RouterProvider, createBrowserRouter } from 'react-router-dom';
-import Layout from './Layout.jsx';
-import Home from './components/Home.jsx';
-import ProductDetails from './components/ProductDetails.jsx';
-import SellPage from './components/SellPage.jsx';
-import Header from './components/Header.jsx';
-import Footer from './components/Footer.jsx';
-import Profile from './components/Profile.jsx';
-import About from './components/About.jsx';
-
-// Corrected router setup
+import { AuthContextProvider } from './context/AuthContext'; // Import AuthContextProvider
+import Layout from './Layout';
+import ProductGrid from './components/ProductGrid';
+import ProductDetails from './components/ProductDetails';
+import SellPage from './components/SellPage';
+import Profile from './components/Profile';
+import About from './components/About';
+import Login from './components/Login';
+import Signup from './components/Signup';
+import UpdateProduct from "./components/UpdateProduct";
+import ProtectedRoute from './components/ProtectedRoute'; // Import ProtectedRoute
+import ChatPage from './components/Chatpage.jsx';
+import PaymentDetails from "./components/PaymentDetails.jsx";
+import NotificationPage from './components/NotificationPage.jsx';
+import SearchedProducts from './components/SearchedProducts.jsx';
+import { SocketContextProvider } from './context/SocketContext.jsx';
+import { NotificationProvider } from "./NotificationProvider.jsx";import Dashboard from './components/Dashboard.jsx';
+// Router setup
 const router = createBrowserRouter([
   {
     path: '/',
@@ -21,27 +27,107 @@ const router = createBrowserRouter([
     children: [
       {
         path: '',
-        element: <Home />,
+        element: <ProductGrid />,
       },
       {
-        path: 'product-details', 
+        path: 'product-details/:id',
         element: <ProductDetails />,
       },
       {
-        path: 'sell-page', 
-        element: <SellPage />,
+        path: 'sell-page',
+        element: (
+          <ProtectedRoute>
+            <SellPage />
+          </ProtectedRoute>
+        ),
+      },
+      
+      {
+        path: "notification",
+        element:(
+          <ProtectedRoute>
+            <SocketContextProvider>
+            <NotificationProvider>
+            <NotificationPage />
+            </NotificationProvider>
+            </SocketContextProvider>
+        </ProtectedRoute>
+        ),
+      },
+      {
+        path: "payment",
+        element:(
+          <ProtectedRoute>
+          <PaymentDetails />
+        </ProtectedRoute>
+        ),
+      },
+      {
+        path: "notification",
+        element:(
+          <ProtectedRoute>
+          <NotificationPage />
+        </ProtectedRoute>
+        ),
+      },
+      {
+        path: "update-product/:id",
+        element: (
+          <ProtectedRoute>
+            <UpdateProduct />
+          </ProtectedRoute>
+        ),
       },
       {
         path: 'about',
         element: <About />,
       },
+      {
+        path: 'login',
+        element: <Login />,
+      },
+      {
+        path: 'signup',
+        element: <Signup />,
+      },
+      {
+        path: 'profile',
+        element: (
+          <ProtectedRoute>
+            <Profile />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: 'chat' ,
+        element:(
+          <ProtectedRoute>
+            <ChatPage/>
+          </ProtectedRoute>
+        )
+      },
+      {
+        path: 'search' ,
+        element:(
+          <SearchedProducts/>
+        )
+      },
+      {
+        path: 'dashboard',
+        element:<Dashboard/>
+      },
+     
     ],
   },
 ]);
 
-// Rendering the app
+// Render the app main page
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <RouterProvider router={router} />
+    <AuthContextProvider>
+    <SocketContextProvider>
+      <RouterProvider router={router} />
+      </SocketContextProvider>
+    </AuthContextProvider>
   </StrictMode>
 );
