@@ -7,7 +7,7 @@ const Profile = () => {
   const { authUser, logout } = useAuthContext();
   const [offers, setOffers] = useState([]);
   const [activeTab, setActiveTab] = useState('profile');
-  const [editMode, setEditMode] = useState(false);
+ const [editMode, setEditMode] = useState(false);
   const [user, setUser] = useState({
     username: '',
     profilePicture: '',
@@ -100,6 +100,8 @@ const handleImageClick = (productId) => {
       console.error("Error fetching offers:", err);
     }
   };
+
+  
   useEffect(() => {
     
       fetchOffers();
