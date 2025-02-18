@@ -19,6 +19,7 @@ const Profile = () => {
   const [editedUser, setEditedUser] = useState({ username: '', email: '' });
   const [products, setProducts] = useState([]);
   const navigate = useNavigate();
+  const [shouldFetchProfile, setShouldFetchProfile] = useState(false); // Local state variable
   const [cart, setCart]=useState([]);
 
   useEffect(() => {
@@ -34,7 +35,8 @@ const Profile = () => {
       }
     };
     fetchProfile();
-  }, [authUser]);
+    
+  }, [authUser,shouldFetchProfile]);
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -81,10 +83,19 @@ const handleImageClick = (productId) => {
   const handleUpdate = async (e) => {
     e.preventDefault();
     const id = authUser._id;
+    if(!editedUser.username || !editedUser.email){
+       console.log("Username and email are required");
+       return;
+    }
     try {
-      const res = await axios.put(`http://localhost:8000/api/user/${id}`, { user: editedUser }, { withCredentials: true });
+      const res = await axios.put(`http://localhost:8000/api/user/${id}/update`,   editedUser, { withCredentials: true });
+      console.log("Updated user data:", res.data);
       setUser(res.data.data);
+      setEditedUser ({ username: res.data.data.username, email: res.data.data.email });
       setEditMode(false);
+
+      setShouldFetchProfile(true)
+     
     } catch (err) {
       console.error(err);
     }

@@ -5,9 +5,9 @@ import{ getUserProfile, updateUserProfile } from '../controllers/profile.control
 
 const router = express.Router();
 // Get user profile
-router.get('/:id', protectRoute, getUserProfile);
+router.get('/:id',  getUserProfile);
 
 // Update profile
-router.put('/:id/update', protectRoute, updateUserProfile);
+router.put('/:id/update',updateUserProfile);
 
 export default router;

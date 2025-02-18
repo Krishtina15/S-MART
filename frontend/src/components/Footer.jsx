@@ -17,7 +17,7 @@ const Footer = () => {
                                 <li>Jebisha Bariya</li>
                                 <li>Kristina Bhatta</li>
                                 <li>Melina Pomu</li>
-                                <li>Sylvia Thapa</li>
+                                <li>Silviya Thapa</li>
                             </ul>
                         </div>
 
@@ -27,7 +27,7 @@ const Footer = () => {
                                 <li><a href="mailto:Jebi@ku.edu.np" className="hover:underline">Jebi@ku.edu.np</a></li>
                                 <li><a href="mailto:Kris@ku.edu.np" className="hover:underline">Kris@ku.edu.np</a></li>
                                 <li><a href="mailto:Me@ku.edu.np" className="hover:underline">Me@ku.edu.np</a></li>
-                                <li><a href="mailto:Sylvia@ku.edu.np" className="hover:underline">Sylvia@ku.edu.np</a></li>
+                                <li><a href="mailto:Silviya@ku.edu.np" className="hover:underline">Silviya@ku.edu.np</a></li>
                             </ul>
                         </div>
                     </div>
