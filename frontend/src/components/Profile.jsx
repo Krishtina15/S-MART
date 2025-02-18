@@ -36,7 +36,7 @@ const Profile = () => {
     };
     fetchProfile();
     
-  }, [authUser,shouldFetchProfile]);
+  }, [authUser]);
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -91,10 +91,8 @@ const handleImageClick = (productId) => {
       const res = await axios.put(`http://localhost:8000/api/user/${id}/update`,   editedUser, { withCredentials: true });
       console.log("Updated user data:", res.data);
       setUser(res.data.data);
-      setEditedUser ({ username: res.data.data.username, email: res.data.data.email });
       setEditMode(false);
 
-      setShouldFetchProfile(true)
      
     } catch (err) {
       console.error(err);
