@@ -160,7 +160,7 @@ const Message = ({ message, type }) => {
   };
 
   const handlePriceChange = (change) => {
-    setPrice((prevPrice) => Math.max(prevPrice + change, product.price));
+    setPrice((prevPrice) => prevPrice + change);
   };
   
   const handleRemoveProduct = async () => {
